@@ -2,13 +2,27 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Globe, ChevronDown, Search, ArrowRight, Building, MapPin, Landmark } from 'lucide-react'
+import { Globe, ChevronDown, ArrowRight, ExternalLink, Building, MapPin, Landmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { officeTypes } from '@/data/bangladesh-data'
+import { officialLinks } from '@/data/official-links'
+
+const linkCategories = [
+  { value: 'all', label: 'সবগুলো', labelEn: 'All official links' },
+  { value: 'ministry', label: 'মন্ত্রণালয়', labelEn: 'Ministries' },
+  { value: 'government', label: 'সরকারি প্রতিষ্ঠান', labelEn: 'Government offices' },
+  { value: 'directorate', label: 'অধিদপ্তর', labelEn: 'Directorates' },
+  { value: 'service', label: 'ই-সেবা', labelEn: 'E-services' },
+  { value: 'education', label: 'শিক্ষা', labelEn: 'Education' },
+  { value: 'portal', label: 'পোর্টাল', labelEn: 'Portals' },
+] as const
 
 export function PortalDirectorySection() {
-  const [selectedType, setSelectedType] = useState(officeTypes[1])
+  const [selectedType, setSelectedType] = useState<(typeof linkCategories)[number]['value']>('all')
   const [open, setOpen] = useState(false)
+  const selectedCategory = linkCategories.find((category) => category.value === selectedType) ?? linkCategories[0]
+  const visibleLinks = selectedType === 'all'
+    ? officialLinks
+    : officialLinks.filter((link) => link.category === selectedType)
 
   return (
     <section id="portal-directory" className="py-16 md:py-20">
@@ -57,7 +71,7 @@ export function PortalDirectorySection() {
                         open ? 'rotate-180' : ''
                       }`}
                     />
-                    <span className="flex-1 text-right">{selectedType}</span>
+                    <span className="flex-1 text-right">{selectedCategory.label}</span>
                     <Building className="h-5 w-5 text-primary" />
                   </button>
 
@@ -70,20 +84,20 @@ export function PortalDirectorySection() {
                         className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto rounded-xl border border-border bg-popover shadow-xl"
                       >
                         <ul className="p-1">
-                          {officeTypes.map((type) => (
-                            <li key={type}>
+                          {linkCategories.map((category) => (
+                            <li key={category.value}>
                               <button
                                 onClick={() => {
-                                  setSelectedType(type)
+                                  setSelectedType(category.value)
                                   setOpen(false)
                                 }}
                                 className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-colors font-bengali ${
-                                  selectedType === type
+                                  selectedType === category.value
                                     ? 'bg-primary/10 text-primary font-medium'
                                     : 'hover:bg-accent'
                                 }`}
                               >
-                                {type}
+                                {category.label}
                               </button>
                             </li>
                           ))}
@@ -95,17 +109,17 @@ export function PortalDirectorySection() {
 
                 {/* Quick type chips */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                  {officeTypes.slice(0, 6).map((type) => (
+                  {linkCategories.slice(0, 6).map((category) => (
                     <button
-                      key={type}
-                      onClick={() => setSelectedType(type)}
+                      key={category.value}
+                      onClick={() => setSelectedType(category.value)}
                       className={`px-3 py-1 text-xs rounded-full transition-colors font-bengali ${
-                        selectedType === type
+                        selectedType === category.value
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted hover:bg-accent text-muted-foreground'
                       }`}
                     >
-                      {type}
+                      {category.label}
                     </button>
                   ))}
                 </div>
@@ -118,16 +132,47 @@ export function PortalDirectorySection() {
                   নির্বাচিত ধরণের সকল ওয়েবসাইট দেখুন
                 </p>
                 <Button
+                  asChild
                   size="lg"
                   variant="secondary"
                   className="font-bengali gap-2 w-full"
                 >
-                  ওয়েবসাইট দেখুন
-                  <ArrowRight className="h-4 w-4" />
+                  <a href="#official-links">
+                    ওয়েবসাইট দেখুন
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
                 </Button>
               </div>
             </div>
           </motion.div>
+
+          <div id="official-links" className="mt-8 scroll-mt-24">
+            <div className="flex items-end justify-between gap-4 mb-4">
+              <div>
+                <h3 className="font-bengali text-xl font-bold">অফিসিয়াল ওয়েবসাইট</h3>
+                <p className="text-sm text-muted-foreground">{visibleLinks.length}টি যাচাইকৃত সরকারি লিংক</p>
+              </div>
+              <span className="text-xs text-muted-foreground hidden sm:block">Official government links</span>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {visibleLinks.map((link) => (
+                <a
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/40"
+                >
+                  <span className="min-w-0">
+                    <span className="block font-bengali font-medium leading-6">{link.nameBn}</span>
+                    <span className="block text-xs text-muted-foreground leading-5">{link.nameEn}</span>
+                    <span className="block text-xs text-primary/80 truncate mt-1">{link.url.replace('https://', '')}</span>
+                  </span>
+                  <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                </a>
+              ))}
+            </div>
+          </div>
 
           {/* Portal stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">

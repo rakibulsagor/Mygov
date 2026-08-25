@@ -18,6 +18,8 @@ import { PhotoGallerySection } from '@/components/bangladesh/photo-gallery-secti
 import { NewsNoticesSection } from '@/components/bangladesh/news-notices-section'
 import { Footer } from '@/components/bangladesh/footer'
 import { FloatingActions } from '@/components/bangladesh/floating-actions'
+import { OnboardingTour } from '@/components/bangladesh/onboarding-tour'
+import { KeyboardShortcutsHelp } from '@/components/bangladesh/keyboard-shortcuts-help'
 
 export default function Home() {
   return (
@@ -44,6 +46,8 @@ export default function Home() {
         <Footer />
         <FloatingActions />
         <SectionNavigator />
+        <OnboardingTour />
+        <KeyboardShortcutsHelp />
       </div>
     </GlobalSearchProvider>
   )

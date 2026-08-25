@@ -2,17 +2,35 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Phone, X, MessageCircle, ArrowUp } from 'lucide-react'
+import { Phone, X, ArrowUp, HelpCircle, Sparkles } from 'lucide-react'
 
 export function FloatingActions() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [showCallMenu, setShowCallMenu] = useState(false)
+  const [showExtras, setShowExtras] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 500)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const triggerShortcutsHelp = () => {
+    const toggle = (window as unknown as { __toggleShortcutsHelp?: () => void }).__toggleShortcutsHelp
+    toggle?.()
+    setShowExtras(false)
+  }
+
+  const replayTour = () => {
+    try {
+      localStorage.removeItem('bangladesh-portal-tour-completed')
+      window.dispatchEvent(new CustomEvent('tour-completed'))
+    } catch {
+      // ignore
+    }
+    // Reload to trigger tour
+    window.location.reload()
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
@@ -28,6 +46,54 @@ export function FloatingActions() {
             aria-label="Scroll to top"
           >
             <ArrowUp className="h-5 w-5 text-primary" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Extras menu (help + tour) */}
+      <AnimatePresence>
+        {showExtras && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            className="flex flex-col gap-2"
+          >
+            {/* Keyboard shortcuts */}
+            <button
+              onClick={triggerShortcutsHelp}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card border border-border shadow-lg hover:bg-accent transition-colors"
+            >
+              <HelpCircle className="h-4 w-4 text-primary" />
+              <span className="font-bengali text-sm">শর্টকাট</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-[10px] font-mono">?</kbd>
+            </button>
+
+            {/* Replay tour */}
+            <button
+              onClick={replayTour}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card border border-border shadow-lg hover:bg-accent transition-colors"
+            >
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <span className="font-bengali text-sm">ট্যুর দেখুন</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Help button (toggles extras) */}
+      <AnimatePresence>
+        {!showExtras && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => setShowExtras(true)}
+            className="w-11 h-11 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-accent transition-colors"
+            aria-label="সাহায্য"
+            title="সাহায্য ও শর্টকাট"
+          >
+            <HelpCircle className="h-5 w-5 text-muted-foreground" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -73,7 +139,10 @@ export function FloatingActions() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowCallMenu(!showCallMenu)}
+          onClick={() => {
+            setShowCallMenu(!showCallMenu)
+            setShowExtras(false)
+          }}
           className="relative w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-2xl flex items-center justify-center"
           aria-label="Quick call"
         >

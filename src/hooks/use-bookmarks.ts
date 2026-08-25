@@ -104,6 +104,41 @@ export function useBookmarks() {
     writeBookmarks([])
   }, [])
 
+  const exportBookmarks = useCallback((): string => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      bookmarks: getSnapshot(),
+    }
+    return JSON.stringify(data, null, 2)
+  }, [])
+
+  const importBookmarks = useCallback((jsonString: string, mode: 'merge' | 'replace' = 'merge'): { ok: boolean; count: number; error?: string } => {
+    try {
+      const parsed = JSON.parse(jsonString)
+      const imported: Bookmark[] = Array.isArray(parsed) ? parsed : parsed?.bookmarks
+      if (!Array.isArray(imported)) {
+        return { ok: false, count: 0, error: 'অবৈধ ফরম্যাট' }
+      }
+      // Validate structure
+      const valid = imported.filter(
+        (b) => b && typeof b.id === 'string' && typeof b.title === 'string' && typeof b.href === 'string'
+      )
+      if (mode === 'replace') {
+        writeBookmarks(valid)
+        return { ok: true, count: valid.length }
+      }
+      // merge: dedupe by id
+      const current = getSnapshot()
+      const existingIds = new Set(current.map((b) => b.id))
+      const newOnes = valid.filter((b) => !existingIds.has(b.id))
+      writeBookmarks([...newOnes, ...current])
+      return { ok: true, count: newOnes.length }
+    } catch {
+      return { ok: false, count: 0, error: 'JSON পার্স করা যায়নি' }
+    }
+  }, [])
+
   return {
     bookmarks,
     isBookmarked,
@@ -111,6 +146,8 @@ export function useBookmarks() {
     removeBookmark,
     toggleBookmark,
     clearBookmarks,
+    exportBookmarks,
+    importBookmarks,
   }
 }
 

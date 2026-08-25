@@ -36,6 +36,8 @@ import {
   Bookmark,
   BookmarkCheck,
   Trash2,
+  Download,
+  Upload,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -91,8 +93,40 @@ function serviceId(title: string) {
 export function EServicesSection() {
   const [activeCategory, setActiveCategory] = useState(0)
   const [showAll, setShowAll] = useState(false)
-  const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks } = useBookmarks()
+  const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks, exportBookmarks, importBookmarks } = useBookmarks()
   const { addRecent } = useRecentlyViewed()
+  const [importMsg, setImportMsg] = useState<string | null>(null)
+
+  const handleExport = () => {
+    const json = exportBookmarks()
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `bangladesh-portal-bookmarks-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = (ev.target?.result as string) || ''
+      const result = importBookmarks(text, 'merge')
+      if (result.ok) {
+        setImportMsg(`${result.count} টি সেবা সফলভাবে ইম্পোর্ট হয়েছে`)
+      } else {
+        setImportMsg(result.error || 'ইম্পোর্ট ব্যর্থ')
+      }
+      setTimeout(() => setImportMsg(null), 3000)
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
 
   // Build display list: if favorites tab (index 5), show bookmarked services
   const isFavoritesTab = activeCategory === govServiceCategories.length
@@ -183,17 +217,49 @@ export function EServicesSection() {
               </div>
             ) : (
               bookmarkCount > 0 && (
-                <div className="flex items-center justify-between px-4 py-2 bg-amber-500/5 rounded-xl border border-amber-500/20">
-                  <p className="font-bengali text-sm text-amber-700 dark:text-amber-400">
-                    আপনার সংরক্ষিত সেবা: <strong>{bookmarkCount}</strong> টি
-                  </p>
-                  <button
-                    onClick={clearBookmarks}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-card hover:bg-destructive/10 hover:text-destructive border border-border transition-colors font-bengali"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    সব মুছুন
-                  </button>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-4 py-2 bg-amber-500/5 rounded-xl border border-amber-500/20 flex-wrap gap-2">
+                    <p className="font-bengali text-sm text-amber-700 dark:text-amber-400">
+                      আপনার সংরক্ষিত সেবা: <strong>{bookmarkCount}</strong> টি
+                    </p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        onClick={handleExport}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg bg-card hover:bg-primary/10 hover:text-primary border border-border transition-colors font-bengali"
+                        title="বুকমার্ক এক্সপোর্ট করুন"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        এক্সপোর্ট
+                      </button>
+                      <label
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg bg-card hover:bg-primary/10 hover:text-primary border border-border transition-colors font-bengali cursor-pointer"
+                        title="বুকমার্ক ইম্পোর্ট করুন"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        ইম্পোর্ট
+                        <input
+                          type="file"
+                          accept="application/json,.json"
+                          onChange={handleImport}
+                          className="hidden"
+                        />
+                      </label>
+                      <button
+                        onClick={clearBookmarks}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg bg-card hover:bg-destructive/10 hover:text-destructive border border-border transition-colors font-bengali"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        সব মুছুন
+                      </button>
+                    </div>
+                  </div>
+                  {importMsg && (
+                    <div className="px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <p className="font-bengali text-sm text-green-700 dark:text-green-400">
+                        ✓ {importMsg}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )
             )}

@@ -21,6 +21,11 @@ const nationalSymbols = [
     image: '/national-symbols/flag-of-bangladesh.svg',
     detail: 'বাংলাদেশের জাতীয় পতাকা সবুজ পটভূমির ওপর একটি লাল বৃত্ত নিয়ে গঠিত। সবুজ বাংলাদেশের প্রকৃতি ও তারুণ্য, আর লাল সূর্যোদয় ও স্বাধীনতার জন্য আত্মত্যাগের প্রতীক।',
     detailEn: 'The national flag of Bangladesh features a red circle on a green field. The green represents the country’s nature and youth, while the red represents the rising sun and the sacrifice for independence.',
+    facts: [
+      { label: 'রং', labelEn: 'Colors', value: 'সবুজ ও লাল', valueEn: 'Green and red' },
+      { label: 'আকৃতি', labelEn: 'Design', value: 'সবুজ পটভূমিতে লাল বৃত্ত', valueEn: 'Red circle on a green field' },
+      { label: 'অনুপাত', labelEn: 'Proportion', value: 'দৈর্ঘ্য ও প্রস্থ ১০:৬', valueEn: '10:6 length-to-width ratio' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Flag_of_Bangladesh',
     color: 'from-green-500 to-emerald-600',
   },
@@ -32,6 +37,11 @@ const nationalSymbols = [
     image: '/national-symbols/national-animal.jpeg',
     detail: 'রয়েল বেঙ্গল টাইগার বাংলাদেশের জাতীয় পশু এবং সুন্দরবনের অন্যতম পরিচিত বাসিন্দা। এটি শক্তি, সৌন্দর্য ও বন্যপ্রকৃতির প্রতীক।',
     detailEn: 'The Royal Bengal tiger is Bangladesh’s national animal and one of the best-known inhabitants of the Sundarbans. It represents strength, beauty, and the country’s wild heritage.',
+    facts: [
+      { label: 'বৈজ্ঞানিক নাম', labelEn: 'Scientific name', value: 'Panthera tigris tigris', valueEn: 'Panthera tigris tigris' },
+      { label: 'প্রধান আবাসস্থল', labelEn: 'Main habitat', value: 'সুন্দরবন', valueEn: 'The Sundarbans' },
+      { label: 'প্রতীকী অর্থ', labelEn: 'Symbolism', value: 'শক্তি ও বন্যপ্রকৃতি', valueEn: 'Strength and wild heritage' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Royal_Bengal_tiger',
     color: 'from-orange-500 to-red-600',
   },
@@ -43,6 +53,11 @@ const nationalSymbols = [
     image: '/national-symbols/national-flower.jpeg',
     detail: 'শাপলা বাংলাদেশের জাতীয় ফুল। জলাভূমি ও নদীমাতৃক বাংলাদেশের সঙ্গে এর গভীর সম্পর্ক রয়েছে।',
     detailEn: 'The water lily is Bangladesh’s national flower. It has a close relationship with the country’s wetlands, rivers, and water-rich landscape.',
+    facts: [
+      { label: 'বৈজ্ঞানিক নাম', labelEn: 'Scientific name', value: 'Nymphaea nouchali', valueEn: 'Nymphaea nouchali' },
+      { label: 'রং', labelEn: 'Typical color', value: 'নীলচে-বেগুনি', valueEn: 'Blue to violet' },
+      { label: 'প্রতীকী অর্থ', labelEn: 'Symbolism', value: 'বাংলার জলাভূমি ও নদী', valueEn: 'The rivers and wetlands of Bengal' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Nymphaea_nouchali',
     color: 'from-pink-400 to-rose-500',
   },
@@ -54,6 +69,11 @@ const nationalSymbols = [
     image: '/national-symbols/national-fruit.jpeg',
     detail: 'কাঁঠাল বাংলাদেশের জাতীয় ফল। এর সুস্বাদু শাঁস, পুষ্টিগুণ এবং গ্রামীণ জীবনে ব্যাপক ব্যবহার এটিকে বিশেষ মর্যাদা দিয়েছে।',
     detailEn: 'The jackfruit is Bangladesh’s national fruit. Its flavour, nutritional value, and widespread use in rural life give it a special place in the country’s culture.',
+    facts: [
+      { label: 'বৈজ্ঞানিক নাম', labelEn: 'Scientific name', value: 'Artocarpus heterophyllus', valueEn: 'Artocarpus heterophyllus' },
+      { label: 'ব্যবহার', labelEn: 'Uses', value: 'কাঁচা ও পাকা উভয়ভাবেই খাওয়া হয়', valueEn: 'Eaten both ripe and unripe' },
+      { label: 'প্রতীকী অর্থ', labelEn: 'Symbolism', value: 'প্রাচুর্য ও গ্রামীণ জীবন', valueEn: 'Abundance and rural life' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Jackfruit',
     color: 'from-yellow-400 to-amber-600',
   },
@@ -65,6 +85,11 @@ const nationalSymbols = [
     image: '/national-symbols/national-anthem.jpeg',
     detail: '“আমার সোনার বাংলা” রবীন্দ্রনাথ ঠাকুর রচিত বাংলাদেশের জাতীয় সঙ্গীত। গানটি বাংলার প্রকৃতি ও মাতৃভূমির প্রতি ভালোবাসা প্রকাশ করে।',
     detailEn: '“Amar Sonar Bangla,” written by Rabindranath Tagore, is the national anthem of Bangladesh. It expresses love for Bengal’s landscape and the motherland.',
+    facts: [
+      { label: 'রচয়িতা', labelEn: 'Author', value: 'রবীন্দ্রনাথ ঠাকুর', valueEn: 'Rabindranath Tagore' },
+      { label: 'গৃহীত হয়', labelEn: 'Adopted', value: '১৯৭২ সালে', valueEn: 'In 1972' },
+      { label: 'মূল ভাব', labelEn: 'Theme', value: 'দেশপ্রেম ও বাংলার প্রকৃতি', valueEn: 'Patriotism and Bengal’s landscape' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Amar_Sonar_Bangla',
     color: 'from-cyan-500 to-blue-600',
   },
@@ -76,6 +101,11 @@ const nationalSymbols = [
     image: '/national-symbols/kazi-nazrul-islam.jpeg',
     detail: 'কাজী নজরুল ইসলাম বাংলাদেশের জাতীয় কবি। তাঁর কবিতা ও গান সাম্য, স্বাধীনতা, মানবতা এবং অন্যায়ের বিরুদ্ধে প্রতিবাদের শক্তিশালী কণ্ঠস্বর।',
     detailEn: 'Kazi Nazrul Islam is the national poet of Bangladesh. His poetry and songs champion equality, freedom, humanity, and resistance to injustice.',
+    facts: [
+      { label: 'জন্ম', labelEn: 'Born', value: '২৪ মে ১৮৯৯', valueEn: '24 May 1899' },
+      { label: 'পরিচিতি', labelEn: 'Known for', value: 'বিদ্রোহী কবিতা ও গান', valueEn: 'Rebel poetry and songs' },
+      { label: 'প্রতীকী অর্থ', labelEn: 'Symbolism', value: 'সাম্য, স্বাধীনতা ও মানবতা', valueEn: 'Equality, freedom, and humanity' },
+    ],
     wiki: 'https://en.wikipedia.org/wiki/Kazi_Nazrul_Islam',
     color: 'from-purple-500 to-violet-600',
   },
@@ -191,6 +221,18 @@ export function NationalIdentitySection() {
               <p className="font-bengali text-sm leading-7 text-foreground/80">
                 {language === 'bn' ? selectedSymbol.detail : selectedSymbol.detailEn}
               </p>
+              <div className="grid gap-2 rounded-xl border border-border bg-muted/40 p-4">
+                {selectedSymbol.facts.map((fact) => (
+                  <div key={fact.label} className="flex items-start justify-between gap-4 text-sm">
+                    <span className="shrink-0 text-muted-foreground">
+                      {language === 'bn' ? fact.label : fact.labelEn}
+                    </span>
+                    <span className="text-right font-medium">
+                      {language === 'bn' ? fact.value : fact.valueEn}
+                    </span>
+                  </div>
+                ))}
+              </div>
               <a
                 href={selectedSymbol.wiki}
                 target="_blank"

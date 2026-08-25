@@ -1,7 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Quote, BookOpen, Music, Flag, Bird, Flower, Star } from 'lucide-react'
+import { Quote, BookOpen, Music, Flag, Bird, Flower, Star, ExternalLink } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { useLanguage } from './language-provider'
 
 const nationalSymbols = [
   {
@@ -9,6 +18,10 @@ const nationalSymbols = [
     title: 'জাতীয় পতাকা',
     titleEn: 'National Flag',
     desc: 'কমলা লাল বৃত্তের সবুজ আয়তক্ষেত্র',
+    image: '/national-symbols/flag-of-bangladesh.svg',
+    detail: 'বাংলাদেশের জাতীয় পতাকা সবুজ পটভূমির ওপর একটি লাল বৃত্ত নিয়ে গঠিত। সবুজ বাংলাদেশের প্রকৃতি ও তারুণ্য, আর লাল সূর্যোদয় ও স্বাধীনতার জন্য আত্মত্যাগের প্রতীক।',
+    detailEn: 'The national flag of Bangladesh features a red circle on a green field. The green represents the country’s nature and youth, while the red represents the rising sun and the sacrifice for independence.',
+    wiki: 'https://en.wikipedia.org/wiki/Flag_of_Bangladesh',
     color: 'from-green-500 to-emerald-600',
   },
   {
@@ -16,6 +29,10 @@ const nationalSymbols = [
     title: 'জাতীয় পশু',
     titleEn: 'National Animal',
     desc: 'রয়েল বেঙ্গল টাইগার',
+    image: '/national-symbols/national-animal.jpeg',
+    detail: 'রয়েল বেঙ্গল টাইগার বাংলাদেশের জাতীয় পশু এবং সুন্দরবনের অন্যতম পরিচিত বাসিন্দা। এটি শক্তি, সৌন্দর্য ও বন্যপ্রকৃতির প্রতীক।',
+    detailEn: 'The Royal Bengal tiger is Bangladesh’s national animal and one of the best-known inhabitants of the Sundarbans. It represents strength, beauty, and the country’s wild heritage.',
+    wiki: 'https://en.wikipedia.org/wiki/Royal_Bengal_tiger',
     color: 'from-orange-500 to-red-600',
   },
   {
@@ -23,6 +40,10 @@ const nationalSymbols = [
     title: 'জাতীয় ফুল',
     titleEn: 'National Flower',
     desc: 'শাপলা (Nymphaea nouchali)',
+    image: '/national-symbols/national-flower.jpeg',
+    detail: 'শাপলা বাংলাদেশের জাতীয় ফুল। জলাভূমি ও নদীমাতৃক বাংলাদেশের সঙ্গে এর গভীর সম্পর্ক রয়েছে।',
+    detailEn: 'The water lily is Bangladesh’s national flower. It has a close relationship with the country’s wetlands, rivers, and water-rich landscape.',
+    wiki: 'https://en.wikipedia.org/wiki/Nymphaea_nouchali',
     color: 'from-pink-400 to-rose-500',
   },
   {
@@ -30,6 +51,10 @@ const nationalSymbols = [
     title: 'জাতীয় ফল',
     titleEn: 'National Fruit',
     desc: 'কাঁঠাল (Artocarpus heterophyllus)',
+    image: '/national-symbols/national-fruit.jpeg',
+    detail: 'কাঁঠাল বাংলাদেশের জাতীয় ফল। এর সুস্বাদু শাঁস, পুষ্টিগুণ এবং গ্রামীণ জীবনে ব্যাপক ব্যবহার এটিকে বিশেষ মর্যাদা দিয়েছে।',
+    detailEn: 'The jackfruit is Bangladesh’s national fruit. Its flavour, nutritional value, and widespread use in rural life give it a special place in the country’s culture.',
+    wiki: 'https://en.wikipedia.org/wiki/Jackfruit',
     color: 'from-yellow-400 to-amber-600',
   },
   {
@@ -37,6 +62,10 @@ const nationalSymbols = [
     title: 'জাতীয় সঙ্গীত',
     titleEn: 'National Anthem',
     desc: 'আমার সোনার বাংলা — রবীন্দ্রনাথ ঠাকুর',
+    image: '/national-symbols/national-anthem.jpeg',
+    detail: '“আমার সোনার বাংলা” রবীন্দ্রনাথ ঠাকুর রচিত বাংলাদেশের জাতীয় সঙ্গীত। গানটি বাংলার প্রকৃতি ও মাতৃভূমির প্রতি ভালোবাসা প্রকাশ করে।',
+    detailEn: '“Amar Sonar Bangla,” written by Rabindranath Tagore, is the national anthem of Bangladesh. It expresses love for Bengal’s landscape and the motherland.',
+    wiki: 'https://en.wikipedia.org/wiki/Amar_Sonar_Bangla',
     color: 'from-cyan-500 to-blue-600',
   },
   {
@@ -44,11 +73,18 @@ const nationalSymbols = [
     title: 'জাতীয় কবি',
     titleEn: 'National Poet',
     desc: 'কাজী নজরুল ইসলাম',
+    image: '/national-symbols/kazi-nazrul-islam.jpeg',
+    detail: 'কাজী নজরুল ইসলাম বাংলাদেশের জাতীয় কবি। তাঁর কবিতা ও গান সাম্য, স্বাধীনতা, মানবতা এবং অন্যায়ের বিরুদ্ধে প্রতিবাদের শক্তিশালী কণ্ঠস্বর।',
+    detailEn: 'Kazi Nazrul Islam is the national poet of Bangladesh. His poetry and songs champion equality, freedom, humanity, and resistance to injustice.',
+    wiki: 'https://en.wikipedia.org/wiki/Kazi_Nazrul_Islam',
     color: 'from-purple-500 to-violet-600',
   },
 ]
 
 export function NationalIdentitySection() {
+  const [selectedSymbol, setSelectedSymbol] = useState<(typeof nationalSymbols)[number] | null>(null)
+  const { language } = useLanguage()
+
   return (
     <section id="national-identity" className="py-16 md:py-20 relative overflow-hidden">
       {/* Background decoration */}
@@ -112,13 +148,18 @@ export function NationalIdentitySection() {
               transition={{ delay: i * 0.06 }}
               className="group"
             >
-              <div className="relative h-full bg-card rounded-2xl border border-border p-5 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setSelectedSymbol(symbol)}
+                className="relative h-full w-full bg-card rounded-2xl border border-border p-5 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={`${symbol.titleEn} details`}
+              >
                 {/* Top gradient accent */}
                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${symbol.color}`} />
 
                 {/* Icon */}
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${symbol.color} mb-3 group-hover:scale-110 group-hover:rotate-3 transition-all shadow-lg`}>
-                  <symbol.icon className="h-7 w-7 text-white" />
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${symbol.color} mb-3 group-hover:scale-110 group-hover:rotate-3 transition-all shadow-lg overflow-hidden`}>
+                  <img src={symbol.image} alt="" className="h-full w-full object-cover" />
                 </div>
 
                 <h3 className="font-bengali text-sm font-bold mb-1 group-hover:text-primary transition-colors">
@@ -128,11 +169,41 @@ export function NationalIdentitySection() {
                 <p className="font-bengali text-xs text-foreground/80 leading-tight">
                   {symbol.desc}
                 </p>
-              </div>
+              </button>
             </motion.div>
           ))}
         </div>
       </div>
+
+      <Dialog open={selectedSymbol !== null} onOpenChange={(open) => !open && setSelectedSymbol(null)}>
+        <DialogContent className="max-w-lg">
+          {selectedSymbol && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-bengali text-xl">
+                  {language === 'bn' ? selectedSymbol.title : selectedSymbol.titleEn}
+                </DialogTitle>
+                <DialogDescription className="font-bengali">
+                  {language === 'bn' ? selectedSymbol.desc : selectedSymbol.title}
+                </DialogDescription>
+              </DialogHeader>
+              <img src={selectedSymbol.image} alt="" className="h-48 w-full rounded-xl object-cover" />
+              <p className="font-bengali text-sm leading-7 text-foreground/80">
+                {language === 'bn' ? selectedSymbol.detail : selectedSymbol.detailEn}
+              </p>
+              <a
+                href={selectedSymbol.wiki}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              >
+                {language === 'bn' ? 'উইকিপিডিয়ায় আরও জানুন' : 'Learn more on Wikipedia'}
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

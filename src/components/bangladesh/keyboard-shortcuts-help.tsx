@@ -12,6 +12,7 @@ import {
   CornerDownLeft,
   RotateCcw,
   HelpCircle,
+  Map as MapIcon,
 } from 'lucide-react'
 
 interface Shortcut {
@@ -29,6 +30,13 @@ const shortcuts: Shortcut[] = [
     labelEn: 'Open Search',
     description: 'সেবা, মন্ত্রণালয়, জরুরি নম্বর সার্চ করুন',
     icon: Search,
+  },
+  {
+    keys: ['Ctrl', 'M'],
+    label: 'সাইট ম্যাপ খুলুন',
+    labelEn: 'Open Sitemap',
+    description: 'সকল বিভাগ ও সেবার সূচী দেখুন',
+    icon: MapIcon,
   },
   {
     keys: ['?'],

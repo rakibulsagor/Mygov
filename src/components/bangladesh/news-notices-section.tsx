@@ -14,6 +14,7 @@ import {
   Sparkles,
   Calendar,
   Building2,
+  Bell,
 } from 'lucide-react'
 import { newsItems, newsCategories, type NewsItem } from '@/data/news-data'
 import { Button } from '@/components/ui/button'
@@ -128,7 +129,7 @@ export function NewsNoticesSection() {
     <section id="news" className="py-16 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="relative text-center mb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -150,6 +151,19 @@ export function NewsNoticesSection() {
 
         {/* Stats bar */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <button
+            onClick={() => {
+              const toggle = (window as unknown as { __toggleNotificationPrefs?: () => void }).__toggleNotificationPrefs
+              toggle?.()
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors"
+            title="বিজ্ঞপ্তি পছন্দ নির্ধারণ করুন"
+          >
+            <Bell className="h-4 w-4 text-primary" />
+            <span className="font-bengali text-sm font-medium text-primary">
+              বিজ্ঞপ্তি পছন্দ
+            </span>
+          </button>
           <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/5 border border-destructive/15">
             <AlertCircle className="h-4 w-4 text-destructive" />
             <span className="font-bengali text-sm font-medium text-destructive">

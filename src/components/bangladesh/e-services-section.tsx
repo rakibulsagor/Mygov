@@ -47,6 +47,7 @@ import { useBookmarks } from '@/hooks/use-bookmarks'
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
 import { useComparison } from '@/hooks/use-comparison'
 import { StarRating } from '@/components/bangladesh/star-rating'
+import { AggregateRating } from '@/components/bangladesh/aggregate-rating'
 import { ServiceDetailModal } from '@/components/bangladesh/service-detail-modal'
 import { ComparisonModal } from '@/components/bangladesh/comparison-modal'
 import { getServiceDetail } from '@/data/service-details'
@@ -394,8 +395,9 @@ export function EServicesSection() {
                           {service.titleEn}
                         </p>
                         {/* Star rating */}
-                        <div onClick={(e) => e.preventDefault()} className="flex justify-center">
+                        <div onClick={(e) => e.preventDefault()} className="flex flex-col items-center gap-1">
                           <StarRating serviceId={sid} size="sm" />
+                          <AggregateRating serviceId={sid} size="sm" />
                         </div>
                       </div>
 

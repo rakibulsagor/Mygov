@@ -138,12 +138,24 @@ export function Footer() {
               <ul className="space-y-2">
                 {column.links.map((link) => (
                   <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors font-bengali"
-                    >
-                      {link}
-                    </a>
+                    {link === 'সাইট ম্যাপ' ? (
+                      <button
+                        onClick={() => {
+                          const open = (window as unknown as { __openSitemap?: () => void }).__openSitemap
+                          open?.()
+                        }}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors font-bengali text-right"
+                      >
+                        {link}
+                      </button>
+                    ) : (
+                      <a
+                        href="#"
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors font-bengali"
+                      >
+                        {link}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

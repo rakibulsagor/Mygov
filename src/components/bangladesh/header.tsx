@@ -101,9 +101,9 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle className="font-bengali text-right">মেনু</SheetTitle>
                   <SheetTitle className="font-bengali text-right">{language === 'bn' ? 'মেনু' : 'Menu'}</SheetTitle>
-                <MobileNav onClose={() => setMobileOpen(false)} />
+                </SheetHeader>
+                <MobileNav onClose={() => setMobileOpen(false)} language={language} />
               </SheetContent>
             </Sheet>
           </div>
@@ -125,8 +125,8 @@ export function Header() {
                   href={item.href}
                   className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-foreground hover:text-primary transition-colors font-bengali"
                 >
-                  {item.title}
                   {language === 'bn' ? item.title : item.titleEn}
+                  {item.children && (
                     <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                   )}
                 </a>
@@ -151,9 +151,9 @@ export function Header() {
                                   href={child.href}
                                   className="block px-3 py-2 text-sm rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors font-bengali"
                                 >
-                                  <span className="block">{child.title}</span>
-                                  <span>{language === 'bn' ? child.title : child.titleEn}</span>
-                                    {child.titleEn}
+                                  <span className="block">{language === 'bn' ? child.title : child.titleEn}</span>
+                                  <span className="block text-xs text-muted-foreground">
+                                    {language === 'bn' ? child.titleEn : child.title}
                                   </span>
                                 </a>
                               </li>
@@ -173,8 +173,8 @@ export function Header() {
   )
 }
 
-function MobileNav({ onClose }: { onClose: () => void }) {
 function MobileNav({ onClose, language }: { onClose: () => void; language: 'bn' | 'en' }) {
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   return (
     <nav className="mt-4">
@@ -192,8 +192,8 @@ function MobileNav({ onClose, language }: { onClose: () => void; language: 'bn' 
                       expanded === item.title ? 'rotate-180' : ''
                     }`}
                   />
-                  <span>{item.title}</span>
                   <span>{language === 'bn' ? item.title : item.titleEn}</span>
+                </button>
                 <AnimatePresence>
                   {expanded === item.title && (
                     <motion.ul
@@ -209,9 +209,9 @@ function MobileNav({ onClose, language }: { onClose: () => void; language: 'bn' 
                             onClick={onClose}
                             className="block px-3 py-2 text-sm rounded-lg hover:bg-accent transition-colors font-bengali text-right"
                           >
-                            <span className="block">{child.title}</span>
                             <span className="block">{language === 'bn' ? child.title : child.titleEn}</span>
-                              {child.titleEn}
+                            <span className="block text-xs text-muted-foreground">
+                              {language === 'bn' ? child.titleEn : child.title}
                             </span>
                           </a>
                         </li>
@@ -224,9 +224,9 @@ function MobileNav({ onClose, language }: { onClose: () => void; language: 'bn' 
               <a
                 href={item.href}
                 onClick={onClose}
-                {language === 'bn' ? item.title : item.titleEn}
+                className="block px-3 py-2.5 rounded-lg hover:bg-accent transition-colors font-bengali text-right"
               >
-                {item.title}
+                {language === 'bn' ? item.title : item.titleEn}
               </a>
             )}
           </li>

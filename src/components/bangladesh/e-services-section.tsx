@@ -38,14 +38,17 @@ import {
   Trash2,
   Download,
   Upload,
+  GitCompare,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { eServices, govServiceCategories } from '@/data/bangladesh-data'
 import { useBookmarks } from '@/hooks/use-bookmarks'
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
+import { useComparison } from '@/hooks/use-comparison'
 import { StarRating } from '@/components/bangladesh/star-rating'
 import { ServiceDetailModal } from '@/components/bangladesh/service-detail-modal'
+import { ComparisonModal } from '@/components/bangladesh/comparison-modal'
 import { getServiceDetail } from '@/data/service-details'
 
 const iconMap: Record<string, LucideIcon> = {
@@ -97,9 +100,20 @@ export function EServicesSection() {
   const [activeCategory, setActiveCategory] = useState(0)
   const [showAll, setShowAll] = useState(false)
   const [selectedService, setSelectedService] = useState<{ title: string; titleEn: string; icon: string; sid: string } | null>(null)
+  const [compareOpen, setCompareOpen] = useState(false)
+  const [compareMsg, setCompareMsg] = useState<string | null>(null)
   const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks, exportBookmarks, importBookmarks } = useBookmarks()
   const { addRecent } = useRecentlyViewed()
+  const { compareItems, isInCompare, toggleCompare, clearCompare, maxItems } = useComparison()
   const [importMsg, setImportMsg] = useState<string | null>(null)
+
+  const handleCompareToggle = (sid: string, title: string, titleEn: string, icon: string) => {
+    const result = toggleCompare({ id: sid, title, titleEn, icon })
+    if (!result.ok && result.error) {
+      setCompareMsg(result.error)
+      setTimeout(() => setCompareMsg(null), 2500)
+    }
+  }
 
   const handleExport = () => {
     const json = exportBookmarks()
@@ -336,6 +350,24 @@ export function EServicesSection() {
                       </button>
                     )}
 
+                    {/* Compare button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleCompareToggle(sid, service.title, service.titleEn, service.icon)
+                      }}
+                      className={`absolute top-2 left-11 z-10 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                        isInCompare(sid)
+                          ? 'bg-violet-500/20 text-violet-500'
+                          : 'bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-violet-500/20 hover:text-violet-500'
+                      }`}
+                      aria-label="তুলনা করুন"
+                      title="তুলনা তালিকায় যোগ করুন"
+                    >
+                      <GitCompare className="h-3.5 w-3.5" />
+                    </button>
+
                     <button
                       type="button"
                       onClick={() =>
@@ -399,6 +431,71 @@ export function EServicesSection() {
           service={selectedService ? getServiceDetail(selectedService.sid, selectedService.title, selectedService.titleEn, selectedService.icon) : null}
           onClose={() => setSelectedService(null)}
         />
+
+        {/* Comparison modal */}
+        <ComparisonModal
+          open={compareOpen}
+          services={compareItems.map((c) => getServiceDetail(c.id, c.title, c.titleEn, c.icon))}
+          onClose={() => setCompareOpen(false)}
+        />
+
+        {/* Comparison floating bar */}
+        <AnimatePresence>
+          {compareItems.length > 0 && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl"
+            >
+              <div className="bg-card rounded-2xl border border-border shadow-2xl p-3 flex items-center gap-3">
+                {/* Items */}
+                <div className="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto">
+                  {compareItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 flex-shrink-0"
+                    >
+                      <span className="font-bengali text-xs font-medium truncate max-w-[100px]">{item.title}</span>
+                      <button
+                        onClick={() => toggleCompare(item)}
+                        className="w-4 h-4 rounded hover:bg-destructive/10 hover:text-destructive flex items-center justify-center transition-colors"
+                        aria-label="সরান"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Compare button */}
+                <Button
+                  size="sm"
+                  onClick={() => setCompareOpen(true)}
+                  disabled={compareItems.length < 2}
+                  className="font-bengali gap-1.5 flex-shrink-0"
+                >
+                  <GitCompare className="h-4 w-4" />
+                  তুলনা করুন ({compareItems.length}/{maxItems})
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Compare message toast */}
+        <AnimatePresence>
+          {compareMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-bengali shadow-lg"
+            >
+              {compareMsg}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   )

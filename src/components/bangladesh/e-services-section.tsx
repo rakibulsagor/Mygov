@@ -45,6 +45,8 @@ import { eServices, govServiceCategories } from '@/data/bangladesh-data'
 import { useBookmarks } from '@/hooks/use-bookmarks'
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
 import { StarRating } from '@/components/bangladesh/star-rating'
+import { ServiceDetailModal } from '@/components/bangladesh/service-detail-modal'
+import { getServiceDetail } from '@/data/service-details'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
@@ -94,6 +96,7 @@ function serviceId(title: string) {
 export function EServicesSection() {
   const [activeCategory, setActiveCategory] = useState(0)
   const [showAll, setShowAll] = useState(false)
+  const [selectedService, setSelectedService] = useState<{ title: string; titleEn: string; icon: string; sid: string } | null>(null)
   const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks, exportBookmarks, importBookmarks } = useBookmarks()
   const { addRecent } = useRecentlyViewed()
   const [importMsg, setImportMsg] = useState<string | null>(null)
@@ -333,18 +336,17 @@ export function EServicesSection() {
                       </button>
                     )}
 
-                    <a
-                      href={service.href}
+                    <button
+                      type="button"
                       onClick={() =>
-                        addRecent({
-                          id: sid,
+                        setSelectedService({
                           title: service.title,
                           titleEn: service.titleEn,
-                          category: service.icon,
-                          href: service.href,
+                          icon: service.icon,
+                          sid,
                         })
                       }
-                      className="block p-4 md:p-5 text-center"
+                      className="block p-4 md:p-5 text-center w-full"
                     >
                       {/* Hover gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-chart-2/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -369,7 +371,7 @@ export function EServicesSection() {
                       <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
                         <ArrowUpRight className="h-4 w-4 text-primary" />
                       </div>
-                    </a>
+                    </button>
                   </motion.div>
                 )
               })}
@@ -391,6 +393,12 @@ export function EServicesSection() {
             </Button>
           </div>
         )}
+
+        {/* Service detail modal */}
+        <ServiceDetailModal
+          service={selectedService ? getServiceDetail(selectedService.sid, selectedService.title, selectedService.titleEn, selectedService.icon) : null}
+          onClose={() => setSelectedService(null)}
+        />
       </div>
     </section>
   )

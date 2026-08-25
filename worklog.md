@@ -669,3 +669,87 @@ Project was stable from Round 5 with: onboarding tour, keyboard shortcuts help, 
 3. **Add service detail modals** — clicking a service opens a detailed modal with description, requirements, process steps, rating, share
 4. **Add notification preferences** — let users choose which news categories they want alerts for
 5. **Add a help/FAQ section** — searchable FAQ with common questions about government services
+
+---
+Task ID: 22 (Cron Review Round 7)
+Agent: webDevReview (Z.ai Code)
+Task: QA testing + service detail modal, FAQ section, 13th section
+
+## Current Project Status Assessment
+Project was stable from Round 6 with: star ratings, share feature, theme customizer, print styles, onboarding tour, keyboard shortcuts, export/import bookmarks, voice search, news section, streaming chat, 12 sections. Top pending recommendations were: service detail modals, FAQ section, aggregate ratings, notification preferences, sitemap. QA confirmed no errors (lint clean, HTTP 200, all sections render). Service detail modals and FAQ section addressed as priorities.
+
+## Completed Modifications This Round
+
+### 1. Service Detail Modal (NEW)
+- Created `src/data/service-details.ts`:
+  - 5 detailed service entries: Digital Center, Passport, Income Tax, Utility Bills, Admission
+  - Each entry: title, description, eligibility[], requirements[], steps[], fee, processingTime, website, phone
+  - getServiceDetail() fallback function returns generic details for services without specific data
+- Created `src/components/bangladesh/service-detail-modal.tsx`:
+  - Full-screen modal with gradient header, category badge, title (Bengali+English)
+  - Share button + close button in header
+  - Body scrollable with sections: description, quick info grid (processing time + fee), eligibility (checkmarks), requirements (numbered list), process steps (vertical timeline with numbered circles), star rating section, contact links (website + phone)
+  - Tracks view in recently-viewed on open
+  - Body scroll lock when open, Escape key to close
+  - Framer Motion spring animations
+- Updated `e-services-section.tsx`:
+  - Changed service cards from `<a>` to `<button>` that opens the modal
+  - Added selectedService state, renders ServiceDetailModal at section end
+  - Removed inline addRecent (modal handles it now)
+- **Verified**: Clicking a service card opens modal showing "যোগ্যতা" (eligibility), "প্রয়োজনীয় কাগজপত্র" (requirements), "আবেদন প্রক্রিয়া" (process)
+- VLM: 7/10 — "Clean layout, good icons for quick scanning, clear hierarchy with green header"
+
+### 2. FAQ Section (NEW)
+- Created `src/data/faq-data.ts`:
+  - 10 FAQ items across 6 categories: General, Passport, Tax, Land, Education, Emergency
+  - Each item: question (Bengali+English), answer (Bengali+English), category, helpful count
+  - faqCategories array with 7 tabs (All + 6 categories)
+- Created `src/components/bangladesh/faq-section.tsx`:
+  - Search bar with live filtering (matches question/answer in both languages)
+  - Category filter tabs with active state
+  - Expandable accordion cards (one open at a time)
+  - Each card: category badge, helpful count, question, animated expand/collapse
+  - Shows answer + English translation when expanded
+  - Empty state: "no results" with 333 call suggestion
+  - Contact CTA at bottom: gradient banner with "Ask AI Assistant" + "Call 333" buttons
+- Added to page.tsx (between News and PortalDirectory) → now 13 sections total
+- Added 'faq' to SectionNavigator (HelpCircle icon)
+- **Verified**: "প্রায়শই জিজ্ঞাসিত প্রশ্নাবলি" heading renders, search works (typing "পাসপোর্ট" filters results), cards expand/collapse
+- VLM: 7/10 — "Clean layout, accessible, professional government color scheme"
+
+### 3. Code Quality
+- All ESLint errors resolved (0 errors)
+- ServiceDetailModal uses useEffect for scroll lock + view tracking (cleanup on unmount)
+- FAQ section uses useMemo for filtered results (no setState-in-effect)
+- Changed service card from `<a>` to `<button>` for modal interaction (better accessibility)
+- All new components are 'use client' with proper SSR guards
+
+## Verification Results
+- ESLint: 0 errors ✅
+- Dev server: HTTP 200, all 10 section IDs render (now includes 'faq')
+- Streaming chat API: still works (returns tokens live)
+- Agent Browser QA:
+  - Page title correct ✅
+  - Service detail modal opens on card click ✅
+  - Modal shows eligibility, requirements, process steps ✅
+  - Modal has star rating + contact links ✅
+  - FAQ section renders with heading "প্রায়শই জিজ্ঞাসিত প্রশ্নাবলি" ✅
+  - FAQ search filters results (typing "পাসপোর্ট" works) ✅
+  - FAQ cards expand/collapse ✅
+  - Section navigator includes FAQ (HelpCircle icon) ✅
+- VLM assessments:
+  - Service detail modal: 7/10 — "Clean layout, good icons, clear hierarchy"
+  - FAQ section: 7/10 — "Clean, accessible, professional color scheme"
+
+## Unresolved Issues / Risks
+1. **Dev server stability**: Server process still dies periodically in sandbox during browser testing (known environment issue). Workaround: restart before each test session.
+2. **Service details limited to 5 services**: Only Digital Center, Passport, Income Tax, Utility Bills, Admission have detailed data. Other 19 services use generic fallback. Could expand with more detailed entries.
+3. **FAQ data is static**: 10 sample FAQs. Could integrate with a CMS or real FAQ database.
+4. **Modal scroll lock**: Uses document.body.style.overflow. Could have edge cases with nested modals.
+
+## Priority Recommendations for Next Phase
+1. **Add a sitemap page** — full hierarchical view of all services and sections (still pending from earlier rounds)
+2. **Add aggregate ratings display** — show average ratings + count on service cards (currently only shows user's own rating)
+3. **Add notification preferences** — let users choose which news categories they want alerts for
+4. **Expand service detail data** — add detailed info for all 24 services (currently only 5 have full details)
+5. **Add a service comparison feature** — let users compare requirements/fees of multiple services side by side

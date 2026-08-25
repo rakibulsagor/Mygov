@@ -14,6 +14,7 @@ import {
   Globe,
   Image as ImageIcon,
   Newspaper,
+  HelpCircle,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -35,6 +36,7 @@ const sections: NavSection[] = [
   { id: 'emergency', label: 'জরুরি', labelEn: 'Emergency', icon: Phone },
   { id: 'quick-links', label: 'দ্রুত লিংক', labelEn: 'Quick', icon: Link2 },
   { id: 'news', label: 'বিজ্ঞপ্তি', labelEn: 'News', icon: Newspaper },
+  { id: 'faq', label: 'প্রশ্ন', labelEn: 'FAQ', icon: HelpCircle },
   { id: 'portal-directory', label: 'বাতায়ন', labelEn: 'Directory', icon: Globe },
   { id: 'gallery', label: 'গ্যালারি', labelEn: 'Gallery', icon: ImageIcon },
 ]

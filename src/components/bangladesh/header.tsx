@@ -50,11 +50,11 @@ export function Header() {
             <BangladeshLogo size={scrolled ? 'sm' : 'md'} />
             <div className="hidden sm:block">
               <h1 className="font-bengali text-lg font-bold text-primary leading-tight">
-              <h1 className="font-bengali text-lg font-bold text-primary leading-tight">
                 {language === 'bn' ? 'বাংলাদেশ জাতীয় তথ্য বাতায়ন' : 'Bangladesh National Portal'}
               </h1>
-                গণপ্রজাতন্ত্রী বাংলাদেশ সরকার
+              <p className="text-xs text-muted-foreground font-bengali">
                 {language === 'bn' ? 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকার' : "Government of the People's Republic of Bangladesh"}
+              </p>
             </div>
           </div>
 

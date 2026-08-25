@@ -24,10 +24,12 @@ import { KeyboardShortcutsHelp } from '@/components/bangladesh/keyboard-shortcut
 import { ThemeCustomizer } from '@/components/bangladesh/theme-customizer'
 import { SitemapProvider } from '@/components/bangladesh/sitemap-provider'
 import { NotificationProvider } from '@/components/bangladesh/notification-provider'
+import { LanguageProvider } from '@/components/bangladesh/language-provider'
 
 export default function Home() {
   return (
-    <GlobalSearchProvider>
+    <LanguageProvider>
+      <GlobalSearchProvider>
       <div className="min-h-screen flex flex-col bg-background">
         <ScrollProgress />
         <TopBar />
@@ -57,6 +59,7 @@ export default function Home() {
         <SitemapProvider />
         <NotificationProvider />
       </div>
-    </GlobalSearchProvider>
+      </GlobalSearchProvider>
+    </LanguageProvider>
   )
 }

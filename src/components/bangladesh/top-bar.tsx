@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useLanguage } from './language-provider'
 
 function getBengaliDate() {
   const months = [
@@ -27,6 +28,7 @@ function getBengaliDate() {
 
 export function TopBar() {
   const { theme, setTheme } = useTheme()
+  const { language, setLanguage } = useLanguage()
   const [date] = useState(getBengaliDate)
 
   return (
@@ -52,13 +54,13 @@ export function TopBar() {
                   className="text-primary-foreground hover:bg-primary-foreground/20 h-8 gap-1"
                 >
                   <Globe className="h-4 w-4" />
-                  <span className="hidden sm:inline">বাংলা</span>
+                  <span className="hidden sm:inline">{language === 'bn' ? 'বাংলা' : 'English'}</span>
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>বাংলা (BN)</DropdownMenuItem>
-                <DropdownMenuItem>English (EN)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('bn')}>বাংলা (BN)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('en')}>English (EN)</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

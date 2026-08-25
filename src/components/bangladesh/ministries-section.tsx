@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ministries } from '@/data/bangladesh-data'
 import { officialLinks } from '@/data/official-links'
+import { useLanguage } from './language-provider'
 
 const officialUrlAliases: Record<string, string> = {
   a2i: 'https://a2i.gov.bd/',
@@ -39,6 +40,7 @@ function getOfficialUrl(nameEn: string) {
 export function MinistriesSection() {
   const [query, setQuery] = useState('')
   const [showAll, setShowAll] = useState(false)
+  const { language } = useLanguage()
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim()
@@ -63,13 +65,13 @@ export function MinistriesSection() {
             viewport={{ once: true }}
           >
             <span className="inline-block px-4 py-1 rounded-full bg-chart-2/10 text-chart-2 text-sm font-medium font-bengali mb-3">
-              মন্ত্রণালয় ও বিভাগ
+              {language === 'bn' ? 'মন্ত্রণালয় ও বিভাগ' : 'Ministries and divisions'}
             </span>
             <h2 className="font-bengali text-3xl md:text-4xl font-bold mb-2">
-              সরকারি অফিস ও মন্ত্রণালয়সমূহ
+              {language === 'bn' ? 'সরকারি অফিস ও মন্ত্রণালয়সমূহ' : 'Government offices and ministries'}
             </h2>
             <p className="text-muted-foreground font-bengali max-w-2xl mx-auto">
-              খুঁজে নিন সকল মন্ত্রণালয়, বিভাগ ও অধিদপ্তরের তথ্য
+              {language === 'bn' ? 'খুঁজে নিন সকল মন্ত্রণালয়, বিভাগ ও অধিদপ্তরের তথ্য' : 'Find information about ministries, divisions, and directorates'}
             </p>
             <div className="w-20 h-1 bg-gradient-to-r from-chart-2 to-primary rounded-full mx-auto mt-4" />
           </motion.div>
@@ -81,7 +83,7 @@ export function MinistriesSection() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="মন্ত্রণালয়ের নাম লিখে খুঁজুন..."
+              placeholder={language === 'bn' ? 'মন্ত্রণালয়ের নাম লিখে খুঁজুন...' : 'Search by ministry name...'}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-10 h-12 font-bengali rounded-full"
@@ -113,10 +115,10 @@ export function MinistriesSection() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bengali text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                  {ministry.name}
+                  {language === 'bn' ? ministry.name : ministry.nameEn}
                 </h3>
                 <p className="text-xs text-muted-foreground truncate">
-                  {ministry.nameEn}
+                  {language === 'bn' ? ministry.nameEn : ministry.name}
                 </p>
               </div>
               <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all flex-shrink-0" />

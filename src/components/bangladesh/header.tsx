@@ -21,11 +21,13 @@ import {
 import { navMenu } from '@/data/bangladesh-data'
 import { BangladeshLogo } from './logo'
 
+import { useLanguage } from './language-provider'
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
+  const { language } = useLanguage()
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
@@ -48,11 +50,11 @@ export function Header() {
             <BangladeshLogo size={scrolled ? 'sm' : 'md'} />
             <div className="hidden sm:block">
               <h1 className="font-bengali text-lg font-bold text-primary leading-tight">
-                বাংলাদেশ জাতীয় তথ্য বাতায়ন
+              <h1 className="font-bengali text-lg font-bold text-primary leading-tight">
+                {language === 'bn' ? 'বাংলাদেশ জাতীয় তথ্য বাতায়ন' : 'Bangladesh National Portal'}
               </h1>
-              <p className="text-xs text-muted-foreground font-bengali">
                 গণপ্রজাতন্ত্রী বাংলাদেশ সরকার
-              </p>
+                {language === 'bn' ? 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকার' : "Government of the People's Republic of Bangladesh"}
             </div>
           </div>
 
@@ -100,7 +102,7 @@ export function Header() {
               <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle className="font-bengali text-right">মেনু</SheetTitle>
-                </SheetHeader>
+                  <SheetTitle className="font-bengali text-right">{language === 'bn' ? 'মেনু' : 'Menu'}</SheetTitle>
                 <MobileNav onClose={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
@@ -124,7 +126,7 @@ export function Header() {
                   className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-foreground hover:text-primary transition-colors font-bengali"
                 >
                   {item.title}
-                  {item.children && (
+                  {language === 'bn' ? item.title : item.titleEn}
                     <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                   )}
                 </a>
@@ -150,7 +152,7 @@ export function Header() {
                                   className="block px-3 py-2 text-sm rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors font-bengali"
                                 >
                                   <span className="block">{child.title}</span>
-                                  <span className="block text-xs text-muted-foreground">
+                                  <span>{language === 'bn' ? child.title : child.titleEn}</span>
                                     {child.titleEn}
                                   </span>
                                 </a>
@@ -172,7 +174,7 @@ export function Header() {
 }
 
 function MobileNav({ onClose }: { onClose: () => void }) {
-  const [expanded, setExpanded] = useState<string | null>(null)
+function MobileNav({ onClose, language }: { onClose: () => void; language: 'bn' | 'en' }) {
 
   return (
     <nav className="mt-4">
@@ -191,7 +193,7 @@ function MobileNav({ onClose }: { onClose: () => void }) {
                     }`}
                   />
                   <span>{item.title}</span>
-                </button>
+                  <span>{language === 'bn' ? item.title : item.titleEn}</span>
                 <AnimatePresence>
                   {expanded === item.title && (
                     <motion.ul
@@ -208,7 +210,7 @@ function MobileNav({ onClose }: { onClose: () => void }) {
                             className="block px-3 py-2 text-sm rounded-lg hover:bg-accent transition-colors font-bengali text-right"
                           >
                             <span className="block">{child.title}</span>
-                            <span className="block text-xs text-muted-foreground">
+                            <span className="block">{language === 'bn' ? child.title : child.titleEn}</span>
                               {child.titleEn}
                             </span>
                           </a>
@@ -222,7 +224,7 @@ function MobileNav({ onClose }: { onClose: () => void }) {
               <a
                 href={item.href}
                 onClick={onClose}
-                className="block px-3 py-2.5 rounded-lg hover:bg-accent transition-colors font-bengali text-right"
+                {language === 'bn' ? item.title : item.titleEn}
               >
                 {item.title}
               </a>

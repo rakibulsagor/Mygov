@@ -6,6 +6,7 @@ import { Search, ArrowRight, Sparkles, ShieldCheck, Zap, TrendingUp } from 'luci
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { VoiceSearchButton } from '@/components/bangladesh/voice-search-button'
+import { useLanguage } from './language-provider'
 
 const heroHighlights = [
   { icon: Zap, title: 'ডিজিটাল সেবা', desc: '২৪/৭ অনলাইন', color: 'text-amber-300' },
@@ -23,6 +24,7 @@ const popularSearches = [
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('')
+  const { language } = useLanguage()
 
   const openSearch = (query = '') => {
     const open = (window as unknown as { __openSearch?: (q?: string) => void }).__openSearch
@@ -93,7 +95,7 @@ export function HeroSection() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-chart-2" />
             </span>
             <span className="text-sm font-medium font-bengali">
-              গণপ্রজাতন্ত্রী বাংলাদেশ সরকার • অফিসিয়াল পোর্টাল
+              {language === 'bn' ? 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকার • অফিসিয়াল পোর্টাল' : "Government of the People's Republic of Bangladesh • Official Portal"}
             </span>
           </motion.div>
 
@@ -104,10 +106,10 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-bengali text-5xl md:text-7xl font-bold mb-4 leading-[1.1] tracking-tight"
           >
-            বাংলাদেশ জাতীয়
+            {language === 'bn' ? 'বাংলাদেশ জাতীয়' : 'Bangladesh National'}
             <br />
             <span className="relative inline-block">
-              <span className="relative z-10">তথ্য বাতায়ন</span>
+              <span className="relative z-10">{language === 'bn' ? 'তথ্য বাতায়ন' : 'Information Portal'}</span>
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -123,7 +125,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="font-bengali text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto font-medium"
           >
-            এক ক্লিকে সকল সরকারি তথ্য ও সেবা — নাগরিকদের জন্য ডিজিটাল বাংলাদেশের প্রবেশদ্বার
+            {language === 'bn' ? 'এক ক্লিকে সকল সরকারি তথ্য ও সেবা — নাগরিকদের জন্য ডিজিটাল বাংলাদেশের প্রবেশদ্বার' : 'Government information and services in one click — Bangladesh’s digital gateway for citizens'}
           </motion.p>
 
           {/* Search bar */}
@@ -148,7 +150,7 @@ export function HeroSection() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => openSearch(searchQuery)}
-                  placeholder="আপনি কী খুঁজছেন? যেমন: পাসপোর্ট, ইউটিলিটি বিল..."
+                  placeholder={language === 'bn' ? 'আপনি কী খুঁজছেন? যেমন: পাসপোর্ট, ইউটিলিটি বিল...' : 'What are you looking for? e.g. passport, utility bills...'}
                   className="border-0 shadow-none focus-visible:ring-0 text-foreground h-11 text-base font-bengali cursor-pointer"
                   readOnly
                 />
@@ -164,7 +166,7 @@ export function HeroSection() {
                   onResult={(text) => openSearch(text)}
                 />
                 <Button type="submit" size="lg" className="h-11 px-6 rounded-xl font-bengali gap-1.5 flex-shrink-0">
-                  অনুসন্ধান
+                  {language === 'bn' ? 'অনুসন্ধান' : 'Search'}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </form>
@@ -174,7 +176,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
               <span className="text-sm text-primary-foreground/70 font-bengali flex items-center gap-1">
                 <TrendingUp className="h-3.5 w-3.5" />
-                জনপ্রিয়:
+                {language === 'bn' ? 'জনপ্রিয়:' : 'Popular:'}
               </span>
               {popularSearches.map((item, i) => (
                 <motion.button

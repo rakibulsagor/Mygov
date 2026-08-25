@@ -256,3 +256,108 @@ Project was stable from Round 1 with 11 sections, no errors, dark mode rated 7-9
 3. **Add a "back to top" floating button enhancement** — already exists, could add section name display
 4. **Add bookmark/favorite services** — let users star services for quick access (localStorage)
 5. **Add a tour/onboarding** — first-visit highlight of key features (Ctrl+K, chatbot, navigator)
+
+---
+Task ID: 18 (Cron Review Round 3)
+Agent: webDevReview (Z.ai Code)
+Task: QA testing + streaming chat, ministries search index, bookmark services feature
+
+## Current Project Status Assessment
+Project was stable from Round 2 with: real AI chatbot (non-streaming, 30-45s latency), global search modal (Ctrl+K), section navigator, 11 sections. Top recommendations were: streaming chat responses, ministries in search index, bookmark/favorite services. All verified as priorities via QA. No errors found in initial QA (lint clean, HTTP 200).
+
+## Completed Modifications This Round
+
+### 1. Streaming Chat API Endpoint (NEW)
+- Created `src/app/api/chat-stream/route.ts` using z-ai-web-dev-sdk with `stream: true`
+- Investigated SDK streaming behavior: returns async iterable of raw SSE text chunks (byte arrays)
+- Implemented SSE parsing: extracts `data:` lines, parses JSON, extracts `delta.content` from each chunk
+- Returns a `ReadableStream` with proper SSE headers (`text/event-stream`, no-cache)
+- maxDuration = 60s for long LLM streams
+- Same system prompt as non-streaming endpoint (Bengali government assistant)
+- **Verified**: curl test returned "হ্যাঁ।" streamed token-by-token ("হ" → "্য" → "াঁ" → "।")
+- **Verified**: full response "বাংলাদেশের জাতীয় ফুল হল শাপলা..." streamed live in UI
+
+### 2. Wired Chatbot to Streaming Endpoint
+- Rewrote `sendMessage` in `bangla-ai-tools-section.tsx` to use `/api/chat-stream`:
+  - Uses `fetch` with `ReadableStream` reader + TextDecoder
+  - Parses SSE `data:` lines, accumulates `delta.content` into full reply
+  - Updates the assistant message live as tokens arrive (real-time typing effect)
+  - Adds empty assistant message first, then fills it as stream progresses
+  - Buffer-based SSE line splitting (handles partial chunks)
+  - Error/fallback handling for empty responses and network errors
+- New UI states:
+  - **Waiting dots**: 3 bouncing dots shown before first token arrives
+  - **Typing cursor**: blinking violet vertical bar at end of streaming text
+  - **Status indicator**: header changes from "অনলাইন — এখন প্রশ্ন করুন" to "টাইপ করছে..." (amber dot) during streaming
+  - **Send button spinner**: CSS border spinner replaces Loader2 icon during loading
+- Removed old separate loading indicator (now integrated into streaming message)
+- **Verified**: User asked "বাংলাদেশের জাতীয় ফুল কি?" → response about Shapla flower streamed live with typing cursor
+
+### 3. Ministries Added to Search Index
+- Updated `src/data/search-index.ts`:
+  - Imports `ministries` from `bangladesh-data.ts` (64 entries)
+  - Dynamically maps each ministry to a SearchEntry with category 'ministry'
+  - Keywords include: ministry name (Bengali), name (English), + split English words
+  - Uses Landmark icon, amber category color (already existed)
+- **Verified**: Searching "কৃষি" returns both e-service "কৃষি" AND ministry "কৃষি মন্ত্রণালয়"
+- **Verified**: Searching "health" returns "স্বাস্থ্য বিষয়ক" e-service AND "স্বাস্হ্য ও পরিবার কল্যাণ মন্ত্রণালয়" + "স্বাস্থ্য অধিদপ্তর"
+- Search now covers 100+ entries (40 services/links + 64 ministries)
+
+### 4. Bookmark/Favorite Services Feature (NEW)
+- Created `src/hooks/use-bookmarks.ts`:
+  - Uses `useSyncExternalStore` for SSR-safe localStorage hydration (no setState-in-effect lint error)
+  - External store with subscribe/getSnapshot/getServerSnapshot pattern
+  - Cross-tab sync via 'storage' event + same-tab sync via custom 'bookmarks-changed' event
+  - API: bookmarks[], isBookmarked(id), addBookmark, removeBookmark, toggleBookmark, clearBookmarks
+  - Persists to localStorage key 'bangladesh-portal-bookmarks'
+- Updated `e-services-section.tsx`:
+  - Added 6th category tab "প্রিয় সেবা" (Favorites) with BookmarkCheck icon + count badge
+  - Badge shows count (red, "9+" if >9), appears only when bookmarks exist
+  - Each service card has bookmark star button (top-left, appears on hover via group-hover)
+  - Bookmarked services show filled amber BookmarkCheck icon (always visible)
+  - Clicking bookmark toggles saved state + updates badge reactively
+  - Favorites tab shows bookmarked services only, with empty state ("এখনো কোন সেবা যোগ করা হয়নি")
+  - "সব মুছুন" (Clear all) button in favorites tab header
+  - Wraps service card content in `<a>` while keeping bookmark button outside (preventDefault on click)
+- **Verified end-to-end**: Clicked bookmark on "ডিজিটাল সেন্টার" → localStorage saved → badge shows "1" → favorites tab shows the service
+
+### 5. Code Quality
+- All ESLint errors resolved:
+  - Refactored useBookmarks to use useSyncExternalStore (avoids setState-in-effect)
+  - Removed `mounted` state guard (useSyncExternalStore handles hydration automatically)
+  - Fixed corrupted conditional rendering from sed (manual Edit repairs)
+- ESLint: 0 errors, clean build
+
+## Verification Results
+- ESLint: 0 errors ✅
+- Dev server: HTTP 200, page renders 283KB HTML with all 7 section IDs
+- Streaming chat API: returns tokens live via SSE ("হ" → "্য" → "াঁ" → "।" = "হ্যাঁ")
+- Non-streaming chat API: still works as fallback (returns full reply JSON)
+- Page renders: TopBar (date), Header (Ctrl K hint), nav, news ticker, hero, all 11 sections
+- Agent Browser QA (when server stable):
+  - Page title: "বাংলাদেশ জাতীয় তথ্য বাতায়ন | Bangladesh National Portal" ✅
+  - E-Services section renders with "সরকারি সেবাসমূহ" heading ✅
+  - 11 bookmark buttons present in DOM ✅
+  - "প্রিয় সেবা" favorites tab present ✅
+  - Bookmark click → localStorage saved → badge count "1" ✅
+  - Search returns ministries + services ✅
+  - Streaming chat shows typing cursor + live tokens ✅
+- VLM assessment: E-Services design rated 8/10 — "Clean, modern UI with good use of whitespace and clear iconography"
+
+## Environment Issue Encountered
+- The detached dev server process (`next-server`) dies periodically in this sandbox environment, especially when agent-browser connects (likely memory pressure during turbopack compilation). 
+- Workaround: restart server with `nohup bun run dev` before each test session; server stays alive long enough for verification.
+- The agent-browser sometimes shows a stale "Parsing ecmascript source code failed" error from turbopack cache, but the actual file is valid (bun build succeeds, page renders 200 with all sections). This is a turbopack cache artifact, not a real error.
+
+## Unresolved Issues / Risks
+1. **Dev server stability**: Server process dies periodically in sandbox; requires restart for browser testing.
+2. **Turbopack cache**: Stale parse error shown in agent-browser console despite valid file. Clearing `.next` + restart resolves it.
+3. **Streaming response time**: First token still takes a few seconds (LLM thinking time), but subsequent tokens stream quickly. The waiting dots indicator handles this gap well.
+4. **Bookmark persistence**: Uses localStorage — clearing browser data removes bookmarks. Could add export/import feature.
+
+## Priority Recommendations for Next Phase
+1. **Add a Government News & Notices section** — RSS-style cards with latest government announcements, circulars, and news
+2. **Add voice search** — wire the mic buttons to Web Speech API for Bengali voice input
+3. **Add a first-visit tour/onboarding** — highlight Ctrl+K, chatbot, navigator, bookmarks features
+4. **Add export/import bookmarks** — let users backup their favorite services
+5. **Add a "recently viewed" section** — track which services/ministries user visited (sessionStorage)

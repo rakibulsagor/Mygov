@@ -1,6 +1,8 @@
 // Search index for Bangladesh National Portal
 // Combines all searchable content from the portal
 
+import { ministries } from './bangladesh-data'
+
 export interface SearchEntry {
   id: string
   title: string
@@ -60,6 +62,22 @@ export const searchIndex: SearchEntry[] = [
   { id: 'sec4', title: 'বাংলা এআই টুলস', titleEn: 'Bangla AI Tools', category: 'section', categoryBn: 'বিভাগ', href: '#ai-tools', keywords: ['এআই', 'ai', 'চ্যাটবট', 'chatbot'] },
   { id: 'sec5', title: 'জরুরি সেবা নম্বর', titleEn: 'Emergency Numbers', category: 'section', categoryBn: 'বিভাগ', href: '#emergency', keywords: ['জরুরি', 'emergency', 'হটলাইন', 'hotline'] },
   { id: 'sec6', title: 'ফটোগ্যালারি', titleEn: 'Photo Gallery', category: 'section', categoryBn: 'বিভাগ', href: '#gallery', keywords: ['ফটো', 'photo', 'গ্যালারি', 'gallery', 'ছবি'] },
+
+  // Ministries & Departments (dynamically indexed)
+  ...ministries.map((m, i) => ({
+    id: `m${i + 1}`,
+    title: m.name,
+    titleEn: m.nameEn,
+    category: 'ministry',
+    categoryBn: 'মন্ত্রণালয়',
+    href: '#ministries',
+    icon: 'Landmark',
+    keywords: [
+      m.name,
+      m.nameEn,
+      ...m.nameEn.toLowerCase().split(/[\s(),.&/-]+/).filter((w) => w.length > 2),
+    ],
+  })),
 ]
 
 // Search function with simple fuzzy matching

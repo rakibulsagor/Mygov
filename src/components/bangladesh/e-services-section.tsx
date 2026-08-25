@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Monitor,
@@ -27,18 +27,20 @@ import {
   Fish,
   Radio,
   BrainCircuit,
-  type LucideIcon,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { eServices, govServiceCategories } from '@/data/bangladesh-data'
-import {
   Star,
   Sparkles,
   Smartphone,
   Building2,
   LayoutGrid,
   ArrowUpRight,
+  Bookmark,
+  BookmarkCheck,
+  Trash2,
+  type LucideIcon,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { eServices, govServiceCategories } from '@/data/bangladesh-data'
+import { useBookmarks } from '@/hooks/use-bookmarks'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
@@ -80,11 +82,27 @@ const categoryIconMap: Record<string, LucideIcon> = {
   LayoutGrid,
 }
 
+// Stable id for each service (index-based)
+function serviceId(title: string) {
+  return `svc-${title}`
+}
+
 export function EServicesSection() {
   const [activeCategory, setActiveCategory] = useState(0)
   const [showAll, setShowAll] = useState(false)
+  const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks } = useBookmarks()
 
-  const displayedServices = showAll ? eServices : eServices.slice(0, 12)
+  // Build display list: if favorites tab (index 5), show bookmarked services
+  const isFavoritesTab = activeCategory === govServiceCategories.length
+  const displayedServices = useMemo(() => {
+    if (isFavoritesTab) {
+      // Show services that are bookmarked
+      return eServices.filter((s) => isBookmarked(serviceId(s.title)))
+    }
+    return showAll ? eServices : eServices.slice(0, 12)
+  }, [isFavoritesTab, showAll, isBookmarked])
+
+  const bookmarkCount = bookmarks.length
 
   return (
     <section id="e-services" className="py-16 md:py-20 bg-muted/30">
@@ -128,67 +146,166 @@ export function EServicesSection() {
               </button>
             )
           })}
+          {/* Favorites tab */}
+          <button
+            onClick={() => setActiveCategory(govServiceCategories.length)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all font-bengali relative ${
+              isFavoritesTab
+                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
+                : 'bg-card text-foreground hover:bg-accent border border-border'
+            }`}
+          >
+            <BookmarkCheck className="h-4 w-4" />
+            প্রিয় সেবা
+            {bookmarkCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-chart-2 text-white text-[10px] font-bold flex items-center justify-center">
+                {bookmarkCount > 9 ? '9+' : bookmarkCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Favorites tab — empty state or clear button */}
+        {isFavoritesTab && (
+          <div className="mb-6">
+            {bookmarkCount === 0 ? (
+              <div className="text-center py-8 bg-card rounded-2xl border border-dashed border-border">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-500/10 mb-3">
+                  <Bookmark className="h-7 w-7 text-amber-500" />
+                </div>
+                <h3 className="font-bengali text-lg font-bold mb-1">এখনো কোন সেবা যোগ করা হয়নি</h3>
+                <p className="font-bengali text-sm text-muted-foreground max-w-md mx-auto">
+                  সেবার কার্ডে থাকা <Star className="inline h-3.5 w-3.5 text-amber-500" /> আইকনে ক্লিক করে
+                  আপনার প্রিয় সেবাসমূহ এখানে সংরক্ষণ করুন।
+                </p>
+              </div>
+            ) : (
+              bookmarkCount > 0 && (
+                <div className="flex items-center justify-between px-4 py-2 bg-amber-500/5 rounded-xl border border-amber-500/20">
+                  <p className="font-bengali text-sm text-amber-700 dark:text-amber-400">
+                    আপনার সংরক্ষিত সেবা: <strong>{bookmarkCount}</strong> টি
+                  </p>
+                  <button
+                    onClick={clearBookmarks}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-card hover:bg-destructive/10 hover:text-destructive border border-border transition-colors font-bengali"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    সব মুছুন
+                  </button>
+                </div>
+              )
+            )}
+          </div>
+        )}
 
         {/* Services grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-          <AnimatePresence mode="popLayout">
-            {displayedServices.map((service, i) => {
-              const Icon = iconMap[service.icon] || Monitor
-              return (
-                <motion.a
-                  key={service.title}
-                  href={service.href}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="group relative bg-card rounded-2xl border border-border p-4 md:p-5 text-center hover:border-primary/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                >
-                  {/* New badge */}
-                  {service.category === 'new' && (
-                    <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-chart-2 text-white rounded-full">
-                      NEW
-                    </span>
-                  )}
+        {(!isFavoritesTab || bookmarkCount > 0) && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+            <AnimatePresence mode="popLayout">
+              {displayedServices.map((service, i) => {
+                const Icon = iconMap[service.icon] || Monitor
+                const sid = serviceId(service.title)
+                const bookmarked = isBookmarked(sid)
+                return (
+                  <motion.div
+                    key={service.title}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="group relative bg-card rounded-2xl border border-border hover:border-primary/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                  >
+                    {/* New badge */}
+                    {service.category === 'new' && (
+                      <span className="absolute top-2 right-2 z-10 px-1.5 py-0.5 text-[10px] font-bold bg-chart-2 text-white rounded-full">
+                        NEW
+                      </span>
+                    )}
 
-                  {/* Hover gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-chart-2/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Bookmark star */}
+                    {!bookmarked && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          toggleBookmark({
+                            id: sid,
+                            title: service.title,
+                            titleEn: service.titleEn,
+                            icon: service.icon,
+                            href: service.href,
+                          })
+                        }}
+                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-amber-500/20 hover:text-amber-500 flex items-center justify-center transition-all"
+                        aria-label="প্রিয় সেবায় যোগ করুন"
+                        title="প্রিয় সেবায় যোগ করুন"
+                      >
+                        <Bookmark className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    {bookmarked && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          toggleBookmark({
+                            id: sid,
+                            title: service.title,
+                            titleEn: service.titleEn,
+                            icon: service.icon,
+                            href: service.href,
+                          })
+                        }}
+                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 flex items-center justify-center transition-all"
+                        aria-label="প্রিয় সেবা থেকে সরান"
+                        title="প্রিয় সেবা থেকে সরান"
+                      >
+                        <BookmarkCheck className="h-3.5 w-3.5 fill-current" />
+                      </button>
+                    )}
 
-                  <div className="relative">
-                    <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10 mb-3 group-hover:scale-110 group-hover:from-primary/20 group-hover:to-chart-2/20 transition-all">
-                      <Icon className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                    </div>
-                    <h3 className="font-bengali text-sm md:text-base font-semibold leading-tight mb-1 group-hover:text-primary transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground leading-tight">
-                      {service.titleEn}
-                    </p>
-                  </div>
+                    <a href={service.href} className="block p-4 md:p-5 text-center">
+                      {/* Hover gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-chart-2/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                  {/* Arrow icon on hover */}
-                  <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all">
-                    <ArrowUpRight className="h-4 w-4 text-primary" />
-                  </div>
-                </motion.a>
-              )
-            })}
-          </AnimatePresence>
-        </div>
+                      <div className="relative">
+                        <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10 mb-3 group-hover:scale-110 group-hover:from-primary/20 group-hover:to-chart-2/20 transition-all">
+                          <Icon className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                        </div>
+                        <h3 className="font-bengali text-sm md:text-base font-semibold leading-tight mb-1 group-hover:text-primary transition-colors">
+                          {service.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground leading-tight">
+                          {service.titleEn}
+                        </p>
+                      </div>
 
-        {/* Show more / less */}
-        <div className="text-center mt-10">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setShowAll(!showAll)}
-            className="font-bengali gap-2 rounded-full px-8"
-          >
-            {showAll ? 'কম দেখুন' : 'আরো দেখুন'}
-            <span className="text-lg">{showAll ? '↑' : '↓'}</span>
-          </Button>
-        </div>
+                      {/* Arrow icon on hover */}
+                      <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+                        <ArrowUpRight className="h-4 w-4 text-primary" />
+                      </div>
+                    </a>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Show more / less — only for non-favorites tab */}
+        {!isFavoritesTab && (
+          <div className="text-center mt-10">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setShowAll(!showAll)}
+              className="font-bengali gap-2 rounded-full px-8"
+            >
+              {showAll ? 'কম দেখুন' : 'আরো দেখুন'}
+              <span className="text-lg">{showAll ? '↑' : '↓'}</span>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )

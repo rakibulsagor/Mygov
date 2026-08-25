@@ -12,7 +12,6 @@ import {
   Search,
   FileText,
   Mic,
-  Loader2,
   RotateCcw,
   type LucideIcon,
 } from 'lucide-react'
@@ -84,6 +83,7 @@ export function BanglaAIToolsSection() {
   const [messages, setMessages] = useState<ChatMsg[]>([WELCOME])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [streaming, setStreaming] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom on new message
@@ -94,7 +94,7 @@ export function BanglaAIToolsSection() {
         behavior: 'smooth',
       })
     }
-  }, [messages, loading])
+  }, [messages, loading, streaming])
 
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim()
@@ -105,6 +105,10 @@ export function BanglaAIToolsSection() {
     setMessages(newMessages)
     setInput('')
     setLoading(true)
+    setStreaming(true)
+
+    // Add empty assistant message that we'll fill as tokens stream in
+    setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
 
     try {
       const history = newMessages
@@ -112,25 +116,80 @@ export function BanglaAIToolsSection() {
         .slice(-6)
         .map((m) => ({ role: m.role, content: m.content }))
 
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/api/chat-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed, history }),
       })
-      const data = await res.json()
-      const reply: string = data.reply || 'দুঃখিত, উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।'
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
+
+      if (!res.ok || !res.body) {
+        throw new Error('স্ট্রিম ব্যর্থ')
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let fullReply = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        // Keep last partial line in buffer
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          const trimmedLine = line.trim()
+          if (!trimmedLine.startsWith('data:')) continue
+          const jsonStr = trimmedLine.slice(5).trim()
+          if (jsonStr === '[DONE]') continue
+          try {
+            const parsed = JSON.parse(jsonStr)
+            const delta = parsed.content || ''
+            if (delta) {
+              fullReply += delta
+              // Update the last assistant message with accumulated text
+              setMessages((prev) => {
+                const updated = [...prev]
+                updated[updated.length - 1] = {
+                  role: 'assistant',
+                  content: fullReply,
+                }
+                return updated
+              })
+            }
+          } catch {
+            // skip
+          }
+        }
+      }
+
+      // If nothing streamed, show fallback
+      if (!fullReply) {
+        setMessages((prev) => {
+          const updated = [...prev]
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: 'দুঃখিত, উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।',
+          }
+          return updated
+        })
+      }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
+      setMessages((prev) => {
+        const updated = [...prev]
+        updated[updated.length - 1] = {
           role: 'assistant',
           content:
             'দুঃখিত, সংযোগে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন অথবা ৩৩৩ নম্বরে কল করুন।',
-        },
-      ])
+        }
+        return updated
+      })
     } finally {
       setLoading(false)
+      setStreaming(false)
     }
   }, [messages, loading])
 
@@ -226,8 +285,8 @@ export function BanglaAIToolsSection() {
                   <div>
                     <h3 className="font-bengali font-bold">বাংলা এআই সহকারী</h3>
                     <p className="text-xs opacity-90 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
-                      অনলাইন — এখন প্রশ্ন করুন
+                      <span className={`w-1.5 h-1.5 rounded-full ${streaming ? 'bg-amber-300' : 'bg-green-300'} animate-pulse`} />
+                      {streaming ? 'টাইপ করছে...' : 'অনলাইন — এখন প্রশ্ন করুন'}
                     </p>
                   </div>
                 </div>
@@ -247,56 +306,51 @@ export function BanglaAIToolsSection() {
                 className="p-4 space-y-3 h-[320px] overflow-y-auto bg-muted/20"
               >
                 <AnimatePresence initial={false}>
-                  {messages.map((msg, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}
-                    >
-                      {msg.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center self-end">
-                          <Sparkles className="h-3.5 w-3.5 text-white" />
-                        </div>
-                      )}
-                      <div
-                        className={`rounded-2xl p-3 max-w-[80%] ${
-                          msg.role === 'user'
-                            ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-tl-sm'
-                            : 'bg-card border border-border rounded-tr-sm'
-                        }`}
+                  {messages.map((msg, i) => {
+                    const isLastAssistant =
+                      msg.role === 'assistant' && i === messages.length - 1
+                    const showTypingCursor = isLastAssistant && streaming
+                    const showWaitingDots = isLastAssistant && streaming && !msg.content
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}
                       >
-                        <p className="font-bengali text-sm leading-relaxed whitespace-pre-wrap">
-                          {msg.content}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+                        {msg.role === 'assistant' && (
+                          <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center self-end">
+                            <Sparkles className="h-3.5 w-3.5 text-white" />
+                          </div>
+                        )}
+                        <div
+                          className={`rounded-2xl p-3 max-w-[80%] ${
+                            msg.role === 'user'
+                              ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-tl-sm'
+                              : 'bg-card border border-border rounded-tr-sm'
+                          }`}
+                        >
+                          {showWaitingDots ? (
+                            <div className="flex items-center gap-1.5 py-1">
+                              <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.3s]" />
+                              <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.15s]" />
+                              <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" />
+                            </div>
+                          ) : (
+                            <p className="font-bengali text-sm leading-relaxed whitespace-pre-wrap">
+                              {msg.content}
+                              {showTypingCursor && (
+                                <span className="inline-block w-1.5 h-4 ml-0.5 bg-violet-500 align-middle animate-pulse" />
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
                 </AnimatePresence>
 
-                {/* Loading indicator */}
-                {loading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-2"
-                  >
-                    <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                      <Sparkles className="h-3.5 w-3.5 text-white" />
-                    </div>
-                    <div className="bg-card border border-border rounded-2xl rounded-tr-sm p-3 flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-violet-500" />
-                      <span className="font-bengali text-sm text-muted-foreground">
-                        ভাবছি...
-                      </span>
-                      <span className="flex gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.3s]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.15s]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce" />
-                      </span>
-                    </div>
-                  </motion.div>
-                )}
+                {/* Loading indicator — only show if streaming hasn't started filling the message yet */}
               </div>
 
               {/* Input bar */}
@@ -324,7 +378,7 @@ export function BanglaAIToolsSection() {
                     aria-label="পাঠান"
                   >
                     {loading ? (
-                      <Loader2 className="h-4 w-4 text-white animate-spin" />
+                      <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                     ) : (
                       <Send className="h-4 w-4 text-white" />
                     )}

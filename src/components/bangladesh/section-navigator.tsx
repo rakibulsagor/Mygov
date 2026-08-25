@@ -13,6 +13,7 @@ import {
   Link2,
   Globe,
   Image as ImageIcon,
+  Newspaper,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -33,6 +34,7 @@ const sections: NavSection[] = [
   { id: 'ministries', label: 'মন্ত্রণালয়', labelEn: 'Ministries', icon: Building2 },
   { id: 'emergency', label: 'জরুরি', labelEn: 'Emergency', icon: Phone },
   { id: 'quick-links', label: 'দ্রুত লিংক', labelEn: 'Quick', icon: Link2 },
+  { id: 'news', label: 'বিজ্ঞপ্তি', labelEn: 'News', icon: Newspaper },
   { id: 'portal-directory', label: 'বাতায়ন', labelEn: 'Directory', icon: Globe },
   { id: 'gallery', label: 'গ্যালারি', labelEn: 'Gallery', icon: ImageIcon },
 ]

@@ -361,3 +361,107 @@ Project was stable from Round 2 with: real AI chatbot (non-streaming, 30-45s lat
 3. **Add a first-visit tour/onboarding** — highlight Ctrl+K, chatbot, navigator, bookmarks features
 4. **Add export/import bookmarks** — let users backup their favorite services
 5. **Add a "recently viewed" section** — track which services/ministries user visited (sessionStorage)
+
+---
+Task ID: 19 (Cron Review Round 4)
+Agent: webDevReview (Z.ai Code)
+Task: QA testing + Government News section, voice search, recently-viewed tracking
+
+## Current Project Status Assessment
+Project was stable from Round 3 with: streaming AI chatbot, bookmark services, ministry search (100+ entries), section navigator, global search modal (Ctrl+K), 11 sections. Top recommendations were: Government News & Notices section, voice search, first-visit tour, recently-viewed tracking. QA confirmed no errors (lint clean, HTTP 200, all sections render). All recommendations addressed as priorities this round.
+
+## Completed Modifications This Round
+
+### 1. Government News & Notices Section (NEW)
+- Created `src/data/news-data.ts` — 9 news items across 5 categories:
+  - Notice (নোটিশ), Circular (প্রজ্ঞাপন), News (সংবাদ), Job (নিয়োগ), Tender (টেন্ডার)
+  - Each item: title (Bengali+English), excerpt, category, date, source, isUrgent/isNew flags
+  - Realistic content: passport notice, budget, teacher recruitment, VAT circular, digital center, tender, SSC results, monetary policy, election
+- Created `src/components/bangladesh/news-notices-section.tsx`:
+  - Stats bar showing urgent count, new count, total count
+  - Category filter tabs (6 tabs: All, Notice, Circular, News, Job, Tender) with live counts
+  - News cards with: category-colored top accent bar, icon, category badge, date, title (line-clamp-2), excerpt (line-clamp-3), source footer, urgent/new badges
+  - Hover effects: lift, shadow, arrow icon
+  - Show more/less button (6 items initially)
+  - Empty state for filtered categories with no items
+  - Color-coded categories: blue (notice), purple (circular), green (news), amber (job), rose (tender)
+- Added to page.tsx between QuickLinks and PortalDirectory
+- Added 'news' to SectionNavigator (Newspaper icon)
+- **Verified**: Page renders with id="news", "সরকারি বিজ্ঞপ্তি ও সংবাদসমূহ" heading, category tabs, urgent/new badges
+- VLM: 7/10 — "Clean, accessible layout with clear hierarchy, effective use of color-coded categories and status badges"
+
+### 2. Voice Search Feature (NEW)
+- Created `src/hooks/use-voice-search.ts`:
+  - Uses Web Speech API (window.SpeechRecognition / webkitSpeechRecognition)
+  - Configured for Bengali (lang: 'bn-BD'), interim results, maxAlternatives: 1
+  - Returns: isListening, transcript, isSupported, error, startListening, stopListening, reset
+  - Error handling: not-allowed (mic denied), no-speech, generic errors — all in Bengali
+  - Uses onResultRef pattern to avoid stale closure + lint-clean (useEffect for ref update)
+  - SSR-safe (checks typeof window)
+- Created `src/components/bangladesh/voice-search-button.tsx`:
+  - Reusable button component (size: 'sm' | 'md')
+  - Full-screen overlay modal with animated mic icon (pulsing rings when listening)
+  - Status text: "শুনছি..." (listening) / "ভয়েস সার্চ" (idle)
+  - Live transcript display in a bordered box
+  - Error message display (red box)
+  - Control buttons: "বন্ধ করুন" (stop) / "আবার চেষ্টা করুন" (try again)
+  - Unsupported browser state with Chrome/Edge recommendation
+  - Bengali tip: "পরিষ্কারভাবে বাংলায় কথা বলুন"
+- Integrated into HeroSection (replaces decorative mic button, calls openSearch with transcript)
+- Integrated into BanglaAIToolsSection chat input (fills the chat input with voice transcript)
+- **Verified**: 2 voice search buttons found in DOM, overlay opens with mic icon + status text
+- VLM confirmed overlay shows mic icon, status text, error handling, try-again button
+
+### 3. Recently Viewed Tracking (NEW)
+- Created `src/hooks/use-recently-viewed.ts`:
+  - Uses useSyncExternalStore for SSR-safe sessionStorage hydration
+  - Tracks up to 8 recently viewed items (id, title, titleEn, category, href, viewedAt)
+  - API: recent[], addRecent, removeRecent, clearRecent
+  - Cross-component sync via custom 'recent-changed' event
+  - Removes duplicates (moves existing item to top)
+- Created `src/components/bangladesh/recently-viewed-widget.tsx`:
+  - Card with header ("সম্প্রতি দেখা"), history icon, clear button
+  - Scrollable list (max-h-80) with animated items
+  - Each item: category icon, title, time-ago ("এইমাত্র", "X মিনিট আগে", "X ঘন্টা আগে")
+  - Bengali numeral conversion for time strings
+  - Remove button per item (appears on hover)
+  - Hidden when no history (returns null)
+- Integrated into EServicesSection: clicking a service card calls addRecent()
+- Integrated into QuickLinksSection: widget appears as a sticky sidebar (lg+ screens)
+- **Verified**: Widget hidden initially → after clicking a service card → "সম্প্রতি দেখা" appears with "এইমাত্র" timestamp
+
+### 4. Code Quality
+- All ESLint errors resolved:
+  - use-voice-search: Removed useEffect-based setIsSupported (moved support check into startListening callback)
+  - use-voice-search: Used useEffect + ref pattern for onResultRef (avoids "ref update during render" lint error)
+  - All hooks use useSyncExternalStore or lazy patterns (no setState-in-effect)
+- ESLint: 0 errors, clean build
+
+## Verification Results
+- ESLint: 0 errors ✅
+- Dev server: HTTP 200, page renders 311KB HTML (up from 283KB due to new News section)
+- All 9 section IDs render: news, e-services, ai-tools, ministries, emergency, gallery, national-identity, live-widgets, quick-links ✅
+- Streaming chat API: still works (returns tokens live)
+- Agent Browser QA:
+  - Page title correct ✅
+  - News section renders with "সরকারি বিজ্ঞপ্তি ও সংবাদসমূহ" ✅
+  - 2 voice search buttons in DOM (hero + chatbot) ✅
+  - Voice search overlay opens with mic icon, status, error handling ✅
+  - Recently viewed widget: hidden initially → appears after clicking service ✅
+  - Time stamp "এইমাত্র" shows correctly ✅
+- VLM assessments:
+  - News section: 7/10 — "Clean, accessible layout, effective color-coded categories"
+  - Voice search overlay: confirmed mic icon, status text, try-again button, tips
+
+## Unresolved Issues / Risks
+1. **Dev server stability**: Server process still dies periodically in sandbox during browser testing (known environment issue). Workaround: restart before each test session.
+2. **Voice search in headless browser**: The headless agent-browser has no microphone access, so voice search shows error states. This is expected — real users with Chrome/Edge will have full functionality.
+3. **News data is static**: The 9 news items are sample data. For production, could integrate RSS feeds from government sources.
+4. **Recently viewed uses sessionStorage**: Cleared when browser session ends (by design — privacy-friendly).
+
+## Priority Recommendations for Next Phase
+1. **Add first-visit tour/onboarding** — highlight Ctrl+K, chatbot, voice search, navigator, bookmarks features (still pending from previous recommendations)
+2. **Add export/import bookmarks** — let users backup their favorite services
+3. **Connect news to real RSS feeds** — integrate Bangladesh government RSS sources for live news
+4. **Add a "back to top" button enhancement** — show current section name in the floating actions
+5. **Add accessibility improvements** — keyboard navigation for news cards, ARIA labels for voice search states

@@ -41,6 +41,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { eServices, govServiceCategories } from '@/data/bangladesh-data'
 import { useBookmarks } from '@/hooks/use-bookmarks'
+import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
@@ -91,6 +92,7 @@ export function EServicesSection() {
   const [activeCategory, setActiveCategory] = useState(0)
   const [showAll, setShowAll] = useState(false)
   const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks } = useBookmarks()
+  const { addRecent } = useRecentlyViewed()
 
   // Build display list: if favorites tab (index 5), show bookmarked services
   const isFavoritesTab = activeCategory === govServiceCategories.length
@@ -264,7 +266,19 @@ export function EServicesSection() {
                       </button>
                     )}
 
-                    <a href={service.href} className="block p-4 md:p-5 text-center">
+                    <a
+                      href={service.href}
+                      onClick={() =>
+                        addRecent({
+                          id: sid,
+                          title: service.title,
+                          titleEn: service.titleEn,
+                          category: service.icon,
+                          href: service.href,
+                        })
+                      }
+                      className="block p-4 md:p-5 text-center"
+                    >
                       {/* Hover gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-chart-2/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 

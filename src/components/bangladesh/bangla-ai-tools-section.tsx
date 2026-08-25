@@ -16,6 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { VoiceSearchButton } from '@/components/bangladesh/voice-search-button'
 
 const aiTools = [
   {
@@ -356,13 +357,10 @@ export function BanglaAIToolsSection() {
               {/* Input bar */}
               <form onSubmit={handleSubmit} className="p-3 border-t border-border bg-card">
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="w-9 h-9 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors flex-shrink-0"
-                    aria-label="ভয়েস ইনপুট"
-                  >
-                    <Mic className="h-4 w-4 text-muted-foreground" />
-                  </button>
+                  <VoiceSearchButton
+                    onResult={(text) => setInput(text)}
+                    size="sm"
+                  />
                   <input
                     type="text"
                     value={input}

@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ArrowRight, Sparkles, ShieldCheck, Zap, Mic, TrendingUp } from 'lucide-react'
+import { Search, ArrowRight, Sparkles, ShieldCheck, Zap, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { VoiceSearchButton } from '@/components/bangladesh/voice-search-button'
 
 const heroHighlights = [
   { icon: Zap, title: 'ডিজিটাল সেবা', desc: '২৪/৭ অনলাইন', color: 'text-amber-300' },
@@ -159,13 +160,9 @@ export function HeroSection() {
                 >
                   Ctrl K
                 </button>
-                <button
-                  type="button"
-                  className="w-10 h-10 rounded-xl bg-muted hover:bg-accent flex items-center justify-center transition-colors flex-shrink-0"
-                  aria-label="ভয়েস সার্চ"
-                >
-                  <Mic className="h-4 w-4 text-muted-foreground" />
-                </button>
+                <VoiceSearchButton
+                  onResult={(text) => openSearch(text)}
+                />
                 <Button type="submit" size="lg" className="h-11 px-6 rounded-xl font-bengali gap-1.5 flex-shrink-0">
                   অনুসন্ধান
                   <ArrowRight className="h-4 w-4" />

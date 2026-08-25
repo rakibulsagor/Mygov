@@ -15,6 +15,7 @@ import { EmergencyServicesSection } from '@/components/bangladesh/emergency-serv
 import { QuickLinksSection } from '@/components/bangladesh/quick-links-section'
 import { PortalDirectorySection } from '@/components/bangladesh/portal-directory-section'
 import { PhotoGallerySection } from '@/components/bangladesh/photo-gallery-section'
+import { NewsNoticesSection } from '@/components/bangladesh/news-notices-section'
 import { Footer } from '@/components/bangladesh/footer'
 import { FloatingActions } from '@/components/bangladesh/floating-actions'
 
@@ -36,6 +37,7 @@ export default function Home() {
           <MinistriesSection />
           <EmergencyServicesSection />
           <QuickLinksSection />
+          <NewsNoticesSection />
           <PortalDirectorySection />
           <PhotoGallerySection />
         </main>

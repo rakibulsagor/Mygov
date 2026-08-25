@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { newsItems, newsCategories, type NewsItem } from '@/data/news-data'
 import { Button } from '@/components/ui/button'
+import { ShareButton } from '@/components/bangladesh/share-button'
 
 const categoryConfig: Record<
   string,
@@ -94,7 +95,15 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
             <Building2 className="h-3 w-3 flex-shrink-0" />
             <span className="font-bengali truncate">{item.sourceBn}</span>
           </div>
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all flex-shrink-0" />
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <ShareButton
+              title={item.title}
+              text={item.excerpt}
+              variant="icon"
+              size="sm"
+            />
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all" />
+          </div>
         </div>
       </div>
     </motion.a>

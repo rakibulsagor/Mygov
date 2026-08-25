@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Globe, Accessibility, Sun, Moon, ChevronDown } from 'lucide-react'
+import { Calendar, Globe, Accessibility, Sun, Moon, ChevronDown, Palette } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import {
@@ -86,6 +86,21 @@ export function TopBar() {
                 <DropdownMenuItem>রিসেট</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Theme color customizer */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const toggle = (window as unknown as { __toggleThemeCustomizer?: () => void }).__toggleThemeCustomizer
+                toggle?.()
+              }}
+              className="text-primary-foreground hover:bg-primary-foreground/20 h-8 w-8 p-0"
+              aria-label="থিম কালার"
+              title="থিম কালার পরিবর্তন করুন"
+            >
+              <Palette className="h-4 w-4" />
+            </Button>
 
             {/* Theme toggle */}
             <Button

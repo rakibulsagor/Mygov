@@ -44,6 +44,7 @@ import { Button } from '@/components/ui/button'
 import { eServices, govServiceCategories } from '@/data/bangladesh-data'
 import { useBookmarks } from '@/hooks/use-bookmarks'
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
+import { StarRating } from '@/components/bangladesh/star-rating'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
@@ -355,9 +356,13 @@ export function EServicesSection() {
                         <h3 className="font-bengali text-sm md:text-base font-semibold leading-tight mb-1 group-hover:text-primary transition-colors">
                           {service.title}
                         </h3>
-                        <p className="text-xs text-muted-foreground leading-tight">
+                        <p className="text-xs text-muted-foreground leading-tight mb-2">
                           {service.titleEn}
                         </p>
+                        {/* Star rating */}
+                        <div onClick={(e) => e.preventDefault()} className="flex justify-center">
+                          <StarRating serviceId={sid} size="sm" />
+                        </div>
                       </div>
 
                       {/* Arrow icon on hover */}

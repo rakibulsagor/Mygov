@@ -20,6 +20,7 @@ import { Footer } from '@/components/bangladesh/footer'
 import { FloatingActions } from '@/components/bangladesh/floating-actions'
 import { OnboardingTour } from '@/components/bangladesh/onboarding-tour'
 import { KeyboardShortcutsHelp } from '@/components/bangladesh/keyboard-shortcuts-help'
+import { ThemeCustomizer } from '@/components/bangladesh/theme-customizer'
 
 export default function Home() {
   return (
@@ -48,6 +49,7 @@ export default function Home() {
         <SectionNavigator />
         <OnboardingTour />
         <KeyboardShortcutsHelp />
+        <ThemeCustomizer />
       </div>
     </GlobalSearchProvider>
   )

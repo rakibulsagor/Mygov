@@ -174,3 +174,80 @@ html {
 .dark .glass {
   background: rgba(20, 20, 20, 0.7);
 }
+
+/* Print styles */
+@media print {
+  /* Hide interactive/non-essential elements */
+  .fixed,
+  .glass,
+  [aria-label="Quick call"],
+  [aria-label="সাহায্য"],
+  [aria-label="ভয়েস সার্চ"],
+  [aria-label="প্রিয় সেবায় যোগ করুন"],
+  [aria-label="শেয়ার করুন"],
+  button[aria-label="বিভাগ নেভিগেটর"],
+  nav,
+  .animate-marquee,
+  .animate-ping,
+  .animate-pulse {
+    display: none !important;
+  }
+
+  /* Force light background for printing */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Remove shadows and gradients */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .gradient-text {
+    -webkit-text-fill-color: black !important;
+    background: none !important;
+  }
+
+  /* Expand all sections, remove scroll limits */
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .max-h-96,
+  .max-h-80,
+  .max-h-\[320px\],
+  .max-h-\[50vh\],
+  .max-h-\[60vh\] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Show URLs for links */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+    color: #666;
+  }
+
+  /* Hide background decorations */
+  .absolute,
+  [class*="bg-gradient"],
+  [class*="blur-"] {
+    background: transparent !important;
+  }
+
+  /* Ensure good print margins */
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Make text crisp */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  h1 { font-size: 20pt; }
+  h2 { font-size: 16pt; }
+  h3 { font-size: 13pt; }
+}

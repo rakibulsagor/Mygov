@@ -133,7 +133,7 @@ export const eServices: ServiceItem[] = [
   { title: "টিকিট বুকিং ও ক্রয়", titleEn: "Ticket Booking", icon: "Ticket", href: "#", category: "popular" },
   { title: "স্বাস্থ্য বিষয়ক", titleEn: "Health Services", icon: "HeartPulse", href: "#", category: "popular" },
   { title: "ট্রেজারি চালান", titleEn: "Treasury Challan", icon: "Landmark", href: "#", category: "popular" },
-  { title: "ফরমস", titleEn: "Forms", icon: "FileCheck", href: "#", category: "popular" },
+  { title: "ফরমস", titleEn: "Forms", icon: "FileCheck", href: "https://dpp.gov.bd", category: "popular" },
   { title: "মৎস্য ও প্রাণী", titleEn: "Fisheries & Livestock", icon: "Fish", href: "#", category: "popular" },
   { title: "রেডিও, টিভির খবর", titleEn: "Radio & TV News", icon: "Radio", href: "#", category: "popular" },
   { title: "বাংলা এআই টুলস", titleEn: "Bangla AI Tools", icon: "BrainCircuit", href: "#", category: "new" },

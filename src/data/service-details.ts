@@ -437,7 +437,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     fee: 'বিনামূল্যে',
     processingTime: 'তাৎক্ষণিক ডাউনলোড',
-    website: 'www.forms.gov.bd',
+    website: 'https://dpp.gov.bd',
     phone: '৩৩৩',
   },
   'svc-মৎস্য ও প্রাণী': {

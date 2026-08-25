@@ -6,6 +6,35 @@ import { Search, Building2, ArrowUpRight, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ministries } from '@/data/bangladesh-data'
+import { officialLinks } from '@/data/official-links'
+
+const officialUrlAliases: Record<string, string> = {
+  a2i: 'https://a2i.gov.bd/',
+  desco: 'https://desco.gov.bd/',
+  bida: 'https://bida.gov.bd/',
+  bmet: 'https://bmet.gov.bd/',
+  bpsc: 'https://bpsc.gov.bd/',
+  'ministry of information': 'https://mib.gov.bd/',
+  'ministry of power energy and mineral resources': 'https://powerdivision.gov.bd/',
+  "ministry of expatriates welfare": 'https://probashi.gov.bd/',
+  'bangladesh bank': 'https://www.bb.org.bd/',
+  bcc: 'https://bcc.gov.bd/',
+  'postal department': 'https://bdpost.gov.bd/',
+  rjsc: 'https://roc.gov.bd/',
+  'election commission': 'https://ecs.gov.bd/',
+  'fire service and civil defense': 'https://fireservice.gov.bd/',
+  'finance division': 'https://mof.gov.bd/',
+  wasa: 'https://dwasa.org.bd/',
+  dpdc: 'https://dpdc.gov.bd/',
+}
+
+function getOfficialUrl(nameEn: string) {
+  const normalizedName = nameEn.toLowerCase().replace(/&/g, ' and ').replace(/[(),.'-]/g, ' ').replace(/\s+/g, ' ').trim()
+  return officialUrlAliases[normalizedName] ?? officialLinks.find((link) => {
+    const normalizedLinkName = link.nameEn.toLowerCase().replace(/&/g, ' and ').replace(/[(),.'-]/g, ' ').replace(/\s+/g, ' ').trim()
+    return normalizedLinkName === normalizedName
+  })?.url
+}
 
 export function MinistriesSection() {
   const [query, setQuery] = useState('')
@@ -70,7 +99,9 @@ export function MinistriesSection() {
           {displayed.map((ministry, i) => (
             <motion.a
               key={ministry.name}
-              href="#"
+              href={getOfficialUrl(ministry.nameEn) ?? '#official-links'}
+              target={getOfficialUrl(ministry.nameEn) ? '_blank' : undefined}
+              rel={getOfficialUrl(ministry.nameEn) ? 'noreferrer' : undefined}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

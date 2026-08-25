@@ -148,3 +148,111 @@ The Bangladesh National Portal redesign (Phase 1) was complete and functional wi
 3. **Add a search results modal** — when user searches in hero, show a dropdown with matching services
 4. **Implement actual AI chatbot backend** — using z-ai-web-dev-sdk LLM skill for real conversational responses
 5. **Add dark mode polish** — verify all new sections look good in dark mode
+
+---
+Task ID: 17 (Cron Review Round 2)
+Agent: webDevReview (Z.ai Code)
+Task: QA testing + add real AI chatbot, global search modal, section navigator, dark mode polish
+
+## Current Project Status Assessment
+Project was stable from Round 1 with 11 sections, no errors, dark mode rated 7-9/10 by VLM. Top recommendations from previous round were: sticky section navigator, search results modal, real AI chatbot backend, dark mode polish. All verified as priorities via QA.
+
+## Completed Modifications This Round
+
+### 1. Real AI Chatbot Backend (NEW)
+- Created `src/app/api/chat/route.ts` using z-ai-web-dev-sdk LLM skill
+- Custom system prompt: "বাংলা এআই সহকারী" — Bangladesh government portal assistant
+- Includes context about key government websites (passport, tax, land, education, emergency 333/999)
+- Handles multi-turn conversation history (last 6 messages)
+- Error handling with Bengali fallback messages
+- maxDuration = 30s for LLM calls
+- **Verified working**: POST /api/chat returns 200 with detailed Bengali responses
+
+### 2. Wired Chatbot to Real API
+- Rewrote `bangla-ai-tools-section.tsx` to use real backend:
+  - Full conversation state management (messages array)
+  - Auto-scroll to bottom on new message
+  - Loading state with animated "ভাবছি..." indicator (3 bouncing dots)
+  - Reset chat button (RotateCcw icon)
+  - Sample query buttons now send real queries to API
+  - Error handling with Bengali fallback message
+  - Disabled state during loading
+- **Verified end-to-end**: Asked "পাসপোর্ট রিনিউয়াল কিভাবে করব?" → received detailed structured Bengali response with www.epassport.gov.bd link
+
+### 3. Global Search Modal with Command Palette (NEW)
+- Created `src/data/search-index.ts` — 40+ searchable entries across categories:
+  - E-Services (23), Emergency (6), Quick Links (5), Sections (6)
+  - Fuzzy matching with scoring (exact > startsWith > includes > keyword)
+- Created `src/components/bangladesh/search-modal.tsx`:
+  - Command palette UI with backdrop blur
+  - Real-time search results with category color coding
+  - Keyboard navigation (↑↓ arrows, Enter to select, Esc to close)
+  - Active item highlighting + auto-scroll into view
+  - Empty state with popular searches + category quick-links
+  - "No results" state with helpful fallback
+  - Footer with keyboard hints
+- Created `src/hooks/use-keyboard-shortcut.ts` — reusable Ctrl+K hook
+- Created `src/components/bangladesh/global-search-provider.tsx`:
+  - Wraps app, provides global Ctrl+K / Cmd+K shortcut
+  - Exposes window.__openSearch API for header/hero buttons
+- Updated `header.tsx`: desktop search bar + mobile search button now open global modal (shows "Ctrl K" hint)
+- Updated `hero-section.tsx`: search input opens modal on focus, popular searches open modal with query
+- **Verified**: Ctrl+K opens modal, typing shows results, keyboard nav works
+
+### 4. Sticky Section Navigator with Scroll Spy (NEW)
+- Created `src/components/bangladesh/section-navigator.tsx`:
+  - Vertical dot tracker on left side (appears after scrollY > 600)
+  - 10 section dots with active state (scaled + primary color)
+  - Animated progress line fills as you scroll
+  - Hover tooltips showing section names
+  - Click dot to smooth-scroll to section
+  - Expandable panel with full section list (numbered, with icons)
+  - IntersectionObserver scroll spy detects active section
+  - Only visible on lg+ screens (hidden on mobile)
+- **Verified**: Navigator appears on scroll, dots highlight active section, click jumps to section, expandable panel works
+
+### 5. Dark Mode Polish
+- Improved live widgets weather section dark gradient (cyan-950/30 for better contrast)
+
+### 6. Refactoring / Code Quality
+- Fixed all ESLint errors:
+  - Moved window.__openSearch assignment to useEffect (react-hooks/immutability)
+  - Refactored SearchModal to use useMemo for derived results (no setState in effect)
+  - Split SearchModal into wrapper + content component with key for clean remount
+  - Used useCallback for handleSelect to fix "accessed before declared" error
+- Removed unused imports (X, Globe, Input) from header
+- ESLint: 0 errors, clean build
+
+## Verification Results
+- ESLint: 0 errors ✅
+- Dev server: HTTP 200, compiles cleanly
+- Chat API: POST /api/chat → 200, returns detailed Bengali responses (41s LLM time)
+- Agent Browser QA:
+  - No console errors, no runtime errors
+  - Ctrl+K opens search modal ✅
+  - Header search button opens modal ✅
+  - Search results appear with category colors ✅
+  - Keyboard navigation (arrows, enter, escape) works ✅
+  - AI chatbot: typed question → received real LLM response ✅
+  - Chat loading state ("ভাবছি...") shows during API call ✅
+  - Section navigator appears after scroll ✅
+  - Dot active state tracks scroll position ✅
+  - Click dot → smooth scroll to section ✅
+  - Expandable panel shows all 10 sections ✅
+- VLM assessments:
+  - Chat UX: 8/10 — "detailed, structured answer... direct source link"
+  - Hero: 8/10 — "Ctrl+K hint clearly visible, search bar is central focal point"
+  - Section navigator: visible and functional
+
+## Unresolved Issues / Risks
+1. **LLM response time**: The AI chatbot takes 30-45s to respond (LLM latency). Could add a streaming response feature for better UX, or a typing indicator that shows progress.
+2. **Search index completeness**: Could add ministries (64 entries) to the search index for even more comprehensive results.
+3. **Voice search**: The mic buttons are decorative — no actual speech-to-text integration yet.
+4. **Mobile section nav**: Section navigator hidden on mobile (could add a bottom-sheet version).
+
+## Priority Recommendations for Next Phase
+1. **Add streaming chat responses** — use z-ai SDK streaming to show tokens as they arrive (better UX for 30-45s responses)
+2. **Add ministries to search index** — index all 64 ministries for comprehensive search
+3. **Add a "back to top" floating button enhancement** — already exists, could add section name display
+4. **Add bookmark/favorite services** — let users star services for quick access (localStorage)
+5. **Add a tour/onboarding** — first-visit highlight of key features (Ctrl+K, chatbot, navigator)

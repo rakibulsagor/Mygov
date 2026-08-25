@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   BrainCircuit,
   Sparkles,
@@ -12,6 +12,8 @@ import {
   Search,
   FileText,
   Mic,
+  Loader2,
+  RotateCcw,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -67,11 +69,86 @@ const sampleQueries = [
   'জমির খতিয়ান অনলাইনে দেখি কিভাবে?',
 ]
 
+interface ChatMsg {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+const WELCOME: ChatMsg = {
+  role: 'assistant',
+  content:
+    'আসসালামু আলাইকুম! আমি বাংলা এআই সহকারী। সরকারি সেবা সম্পর্কে যেকোনো প্রশ্ন করুন।',
+}
+
 export function BanglaAIToolsSection() {
-  const [activeQuery, setActiveQuery] = useState<string | null>(null)
+  const [messages, setMessages] = useState<ChatMsg[]>([WELCOME])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom on new message
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+  }, [messages, loading])
+
+  const sendMessage = useCallback(async (text: string) => {
+    const trimmed = text.trim()
+    if (!trimmed || loading) return
+
+    const userMsg: ChatMsg = { role: 'user', content: trimmed }
+    const newMessages = [...messages, userMsg]
+    setMessages(newMessages)
+    setInput('')
+    setLoading(true)
+
+    try {
+      const history = newMessages
+        .filter((m, i) => i > 0) // skip welcome
+        .slice(-6)
+        .map((m) => ({ role: m.role, content: m.content }))
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: trimmed, history }),
+      })
+      const data = await res.json()
+      const reply: string = data.reply || 'দুঃখিত, উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।'
+      setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content:
+            'দুঃখিত, সংযোগে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন অথবা ৩৩৩ নম্বরে কল করুন।',
+        },
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }, [messages, loading])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    sendMessage(input)
+  }
+
+  const resetChat = () => {
+    setMessages([WELCOME])
+    setInput('')
+  }
 
   return (
-    <section id="ai-tools" className="py-16 md:py-20 relative overflow-hidden bg-gradient-to-br from-violet-50 via-background to-cyan-50 dark:from-violet-950/20 dark:via-background dark:to-cyan-950/20">
+    <section
+      id="ai-tools"
+      className="py-16 md:py-20 relative overflow-hidden bg-gradient-to-br from-violet-50 via-background to-cyan-50 dark:from-violet-950/20 dark:via-background dark:to-cyan-950/20"
+    >
       {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -120,8 +197,10 @@ export function BanglaAIToolsSection() {
                   transition={{ delay: i * 0.05 }}
                   className="group relative bg-card rounded-xl border border-border p-3 text-right hover:shadow-lg hover:border-violet-400/40 transition-all hover:-translate-y-0.5"
                 >
-                  <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br ${tool.gradient} mb-2 group-hover:scale-110 transition-transform`}>
-                    <tool.icon className="h-4.5 w-4.5 text-white" />
+                  <div
+                    className={`inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br ${tool.gradient} mb-2 group-hover:scale-110 transition-transform`}
+                  >
+                    <tool.icon className="h-4 w-4 text-white" />
                   </div>
                   <h3 className="font-bengali text-xs font-bold mb-0.5">{tool.title}</h3>
                   <p className="text-[10px] text-muted-foreground">{tool.titleEn}</p>
@@ -130,7 +209,7 @@ export function BanglaAIToolsSection() {
             </div>
           </div>
 
-          {/* Right: AI Chat demo */}
+          {/* Right: AI Chat */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -139,90 +218,119 @@ export function BanglaAIToolsSection() {
           >
             <div className="relative bg-card rounded-3xl border border-border shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="flex items-center gap-3 p-4 border-b border-border bg-gradient-to-r from-violet-500 to-purple-600 text-white">
-                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-                  <BrainCircuit className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-bengali font-bold">বাংলা এআই সহকারী</h3>
-                  <p className="text-xs opacity-80 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
-                    অনলাইন — এখন প্রশ্ন করুন
-                  </p>
-                </div>
-              </div>
-
-              {/* Chat body */}
-              <div className="p-4 space-y-3 min-h-[280px] bg-muted/20">
-                {/* AI welcome message */}
-                <div className="flex gap-2">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <Sparkles className="h-3.5 w-3.5 text-white" />
+              <div className="flex items-center justify-between gap-3 p-4 border-b border-border bg-gradient-to-r from-violet-500 to-purple-600 text-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                    <BrainCircuit className="h-5 w-5" />
                   </div>
-                  <div className="bg-card rounded-2xl rounded-tr-sm border border-border p-3 max-w-[80%]">
-                    <p className="font-bengali text-sm">
-                      আসসালামু আলাইকুম! আমি বাংলা এআই সহকারী। সরকারি সেবা সম্পর্কে
-                      যেকোনো প্রশ্ন করুন।
+                  <div>
+                    <h3 className="font-bengali font-bold">বাংলা এআই সহকারী</h3>
+                    <p className="text-xs opacity-90 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
+                      অনলাইন — এখন প্রশ্ন করুন
                     </p>
                   </div>
                 </div>
+                <button
+                  onClick={resetChat}
+                  className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                  aria-label="নতুন চ্যাট"
+                  title="নতুন চ্যাট শুরু করুন"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </button>
+              </div>
 
-                {/* Sample query */}
-                {activeQuery && (
+              {/* Chat body - scrollable */}
+              <div
+                ref={scrollRef}
+                className="p-4 space-y-3 h-[320px] overflow-y-auto bg-muted/20"
+              >
+                <AnimatePresence initial={false}>
+                  {messages.map((msg, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}
+                    >
+                      {msg.role === 'assistant' && (
+                        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center self-end">
+                          <Sparkles className="h-3.5 w-3.5 text-white" />
+                        </div>
+                      )}
+                      <div
+                        className={`rounded-2xl p-3 max-w-[80%] ${
+                          msg.role === 'user'
+                            ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-tl-sm'
+                            : 'bg-card border border-border rounded-tr-sm'
+                        }`}
+                      >
+                        <p className="font-bengali text-sm leading-relaxed whitespace-pre-wrap">
+                          {msg.content}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {/* Loading indicator */}
+                {loading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex gap-2 justify-end"
-                  >
-                    <div className="bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-2xl rounded-tl-sm p-3 max-w-[80%]">
-                      <p className="font-bengali text-sm">{activeQuery}</p>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* AI Response */}
-                {activeQuery && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
                     className="flex gap-2"
                   >
                     <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
                       <Sparkles className="h-3.5 w-3.5 text-white" />
                     </div>
-                    <div className="bg-card rounded-2xl rounded-tr-sm border border-border p-3 max-w-[80%]">
-                      <p className="font-bengali text-sm leading-relaxed">
-                        পাসপোর্ট রিনিউয়ালের জন্য আপনাকে <strong>www.epassport.gov.bd</strong>{' '}
-                        ওয়েবসাইটে গিয়ে অনলাইনে আবেদন করতে হবে। প্রয়োজনীয় কাগজপত্র:
-                        পুরাতন পাসপোর্ট, জাতীয় পরিচয়পত্র এবং ছবি।
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
-                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1 font-bengali">
-                          বিস্তারিত দেখুন
-                        </Button>
-                      </div>
+                    <div className="bg-card border border-border rounded-2xl rounded-tr-sm p-3 flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-violet-500" />
+                      <span className="font-bengali text-sm text-muted-foreground">
+                        ভাবছি...
+                      </span>
+                      <span className="flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce" />
+                      </span>
                     </div>
                   </motion.div>
                 )}
               </div>
 
               {/* Input bar */}
-              <div className="p-3 border-t border-border bg-card">
+              <form onSubmit={handleSubmit} className="p-3 border-t border-border bg-card">
                 <div className="flex items-center gap-2">
-                  <button className="w-9 h-9 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors">
+                  <button
+                    type="button"
+                    className="w-9 h-9 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors flex-shrink-0"
+                    aria-label="ভয়েস ইনপুট"
+                  >
                     <Mic className="h-4 w-4 text-muted-foreground" />
                   </button>
                   <input
                     type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
                     placeholder="আপনার প্রশ্ন লিখুন..."
-                    className="flex-1 h-9 px-3 rounded-lg bg-muted border-0 text-sm font-bengali focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                    disabled={loading}
+                    className="flex-1 h-9 px-3 rounded-lg bg-muted border-0 text-sm font-bengali focus:outline-none focus:ring-2 focus:ring-violet-500/30 disabled:opacity-50 text-foreground placeholder:text-muted-foreground"
                   />
-                  <button className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 hover:opacity-90 flex items-center justify-center transition-opacity">
-                    <Send className="h-4 w-4 text-white" />
+                  <button
+                    type="submit"
+                    disabled={loading || !input.trim()}
+                    className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-opacity flex-shrink-0"
+                    aria-label="পাঠান"
+                  >
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 text-white animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4 text-white" />
+                    )}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
 
             {/* Floating badge */}
@@ -256,12 +364,9 @@ export function BanglaAIToolsSection() {
             {sampleQueries.map((query) => (
               <button
                 key={query}
-                onClick={() => setActiveQuery(query)}
-                className={`px-4 py-2 rounded-full text-sm font-bengali transition-all border ${
-                  activeQuery === query
-                    ? 'bg-violet-500 text-white border-violet-500 shadow-lg shadow-violet-500/25'
-                    : 'bg-card text-foreground border-border hover:border-violet-400/40 hover:bg-accent'
-                }`}
+                onClick={() => sendMessage(query)}
+                disabled={loading}
+                className="px-4 py-2 rounded-full text-sm font-bengali transition-all border bg-card text-foreground border-border hover:border-violet-400/40 hover:bg-accent disabled:opacity-50"
               >
                 {query}
               </button>

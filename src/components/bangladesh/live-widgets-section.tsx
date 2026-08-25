@@ -133,7 +133,7 @@ export function LiveWidgetsSection() {
               </div>
 
               {/* Active city weather */}
-              <div className="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20">
+              <div className="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30">
                 {(() => {
                   const city = weatherData[activeCity]
                   const Icon = city.icon

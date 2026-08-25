@@ -5,15 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search,
   Menu,
-  X,
   ChevronDown,
   Phone,
   Mail,
   MapPin,
-  Globe,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Sheet,
   SheetContent,
@@ -27,7 +24,6 @@ import { BangladeshLogo } from './logo'
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
   useEffect(() => {
@@ -62,14 +58,21 @@ export function Header() {
 
           {/* Search bar - desktop */}
           <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                type="search"
-                placeholder="অনুসন্ধান করুন..."
-                className="pl-10 pr-4 h-10 bg-background/50 border-border/50 focus-visible:bg-background transition-all"
-              />
-            </div>
+            <button
+              onClick={() => {
+                const open = (window as unknown as { __openSearch?: (q?: string) => void }).__openSearch
+                open?.()
+              }}
+              className="relative w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-background/50 border border-border/50 hover:bg-background hover:border-primary/40 transition-all group"
+            >
+              <Search className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+              <span className="font-bengali text-sm text-muted-foreground flex-1 text-right">
+                অনুসন্ধান করুন...
+              </span>
+              <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded bg-muted text-muted-foreground font-mono">
+                Ctrl K
+              </kbd>
+            </button>
           </div>
 
           {/* Right actions */}
@@ -79,9 +82,12 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="lg:hidden"
-              onClick={() => setSearchOpen(!searchOpen)}
+              onClick={() => {
+                const open = (window as unknown as { __openSearch?: (q?: string) => void }).__openSearch
+                open?.()
+              }}
             >
-              {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              <Search className="h-5 w-5" />
             </Button>
 
             {/* Mobile menu */}
@@ -100,29 +106,6 @@ export function Header() {
             </Sheet>
           </div>
         </div>
-
-        {/* Mobile search */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="lg:hidden overflow-hidden"
-            >
-              <div className="pb-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="অনুসন্ধান করুন..."
-                    className="pl-10 h-10"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Desktop Navigation */}

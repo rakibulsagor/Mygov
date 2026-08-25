@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Search, ArrowRight, Sparkles, ShieldCheck, Zap, Mic, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,13 @@ const popularSearches = [
 ]
 
 export function HeroSection() {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const openSearch = (query = '') => {
+    const open = (window as unknown as { __openSearch?: (q?: string) => void }).__openSearch
+    open?.(query)
+  }
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground">
       {/* Decorative background */}
@@ -126,24 +134,43 @@ export function HeroSection() {
           >
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-white/30 via-chart-2/30 to-white/30 rounded-2xl blur-lg opacity-60 group-focus-within:opacity-100 transition-opacity" />
-              <div className="relative flex items-center gap-2 p-2 bg-white rounded-2xl shadow-2xl">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  openSearch(searchQuery)
+                }}
+                className="relative flex items-center gap-2 p-2 bg-white rounded-2xl shadow-2xl"
+              >
                 <Search className="h-5 w-5 text-muted-foreground ml-3 flex-shrink-0" />
                 <Input
                   type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => openSearch(searchQuery)}
                   placeholder="আপনি কী খুঁজছেন? যেমন: পাসপোর্ট, ইউটিলিটি বিল..."
-                  className="border-0 shadow-none focus-visible:ring-0 text-foreground h-11 text-base font-bengali"
+                  className="border-0 shadow-none focus-visible:ring-0 text-foreground h-11 text-base font-bengali cursor-pointer"
+                  readOnly
                 />
                 <button
+                  type="button"
+                  onClick={() => openSearch()}
+                  className="hidden sm:flex items-center gap-1 px-2 h-8 rounded-md bg-muted/60 text-[11px] text-muted-foreground font-mono"
+                  title="সার্চ শর্টকাট"
+                >
+                  Ctrl K
+                </button>
+                <button
+                  type="button"
                   className="w-10 h-10 rounded-xl bg-muted hover:bg-accent flex items-center justify-center transition-colors flex-shrink-0"
                   aria-label="ভয়েস সার্চ"
                 >
                   <Mic className="h-4 w-4 text-muted-foreground" />
                 </button>
-                <Button size="lg" className="h-11 px-6 rounded-xl font-bengali gap-1.5 flex-shrink-0">
+                <Button type="submit" size="lg" className="h-11 px-6 rounded-xl font-bengali gap-1.5 flex-shrink-0">
                   অনুসন্ধান
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-              </div>
+              </form>
             </div>
 
             {/* Popular searches */}
@@ -158,6 +185,7 @@ export function HeroSection() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + i * 0.05 }}
+                  onClick={() => openSearch(item.term)}
                   className="group inline-flex items-center gap-1.5 px-3 py-1 text-sm rounded-full bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-all border border-primary-foreground/10 font-bengali"
                 >
                   {item.term}

@@ -1,4 +1,6 @@
 import { ScrollProgress } from '@/components/bangladesh/scroll-progress'
+import { GlobalSearchProvider } from '@/components/bangladesh/global-search-provider'
+import { SectionNavigator } from '@/components/bangladesh/section-navigator'
 import { TopBar } from '@/components/bangladesh/top-bar'
 import { Header } from '@/components/bangladesh/header'
 import { NewsTicker } from '@/components/bangladesh/news-ticker'
@@ -18,26 +20,29 @@ import { FloatingActions } from '@/components/bangladesh/floating-actions'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <ScrollProgress />
-      <TopBar />
-      <Header />
-      <NewsTicker />
-      <main className="flex-1">
-        <HeroSection />
-        <StatsSection />
-        <NationalIdentitySection />
-        <EServicesSection />
-        <BanglaAIToolsSection />
-        <LiveWidgetsSection />
-        <MinistriesSection />
-        <EmergencyServicesSection />
-        <QuickLinksSection />
-        <PortalDirectorySection />
-        <PhotoGallerySection />
-      </main>
-      <Footer />
-      <FloatingActions />
-    </div>
+    <GlobalSearchProvider>
+      <div className="min-h-screen flex flex-col bg-background">
+        <ScrollProgress />
+        <TopBar />
+        <Header />
+        <NewsTicker />
+        <main className="flex-1">
+          <HeroSection />
+          <StatsSection />
+          <NationalIdentitySection />
+          <EServicesSection />
+          <BanglaAIToolsSection />
+          <LiveWidgetsSection />
+          <MinistriesSection />
+          <EmergencyServicesSection />
+          <QuickLinksSection />
+          <PortalDirectorySection />
+          <PhotoGallerySection />
+        </main>
+        <Footer />
+        <FloatingActions />
+        <SectionNavigator />
+      </div>
+    </GlobalSearchProvider>
   )
 }

@@ -1,9 +1,13 @@
+import { ScrollProgress } from '@/components/bangladesh/scroll-progress'
 import { TopBar } from '@/components/bangladesh/top-bar'
 import { Header } from '@/components/bangladesh/header'
 import { NewsTicker } from '@/components/bangladesh/news-ticker'
 import { HeroSection } from '@/components/bangladesh/hero-section'
 import { StatsSection } from '@/components/bangladesh/stats-section'
+import { NationalIdentitySection } from '@/components/bangladesh/national-identity-section'
 import { EServicesSection } from '@/components/bangladesh/e-services-section'
+import { BanglaAIToolsSection } from '@/components/bangladesh/bangla-ai-tools-section'
+import { LiveWidgetsSection } from '@/components/bangladesh/live-widgets-section'
 import { MinistriesSection } from '@/components/bangladesh/ministries-section'
 import { EmergencyServicesSection } from '@/components/bangladesh/emergency-services-section'
 import { QuickLinksSection } from '@/components/bangladesh/quick-links-section'
@@ -15,13 +19,17 @@ import { FloatingActions } from '@/components/bangladesh/floating-actions'
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <ScrollProgress />
       <TopBar />
       <Header />
       <NewsTicker />
       <main className="flex-1">
         <HeroSection />
         <StatsSection />
+        <NationalIdentitySection />
         <EServicesSection />
+        <BanglaAIToolsSection />
+        <LiveWidgetsSection />
         <MinistriesSection />
         <EmergencyServicesSection />
         <QuickLinksSection />

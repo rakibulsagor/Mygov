@@ -31,7 +31,6 @@ import {
   Music,
   BookOpen,
   Monitor,
-  DollarSign,
   FileText,
   GraduationCap,
   Plane,
@@ -48,6 +47,7 @@ import {
   Briefcase,
   Gavel,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import { sitemapData, type SitemapNode } from '@/data/sitemap-data'
 
 const iconMap: Record<string, LucideIcon> = {
@@ -72,7 +72,7 @@ const iconMap: Record<string, LucideIcon> = {
   Music,
   BookOpen,
   Monitor,
-  DollarSign,
+  DollarSign: CurrencyTaka,
   FileText,
   GraduationCap,
   Plane,

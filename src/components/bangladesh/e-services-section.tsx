@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Monitor,
-  DollarSign,
   FileText,
   GraduationCap,
   ClipboardCheck,
@@ -41,6 +40,7 @@ import {
   GitCompare,
   type LucideIcon,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import { Button } from '@/components/ui/button'
 import { eServices, govServiceCategories } from '@/data/bangladesh-data'
 import { useBookmarks } from '@/hooks/use-bookmarks'
@@ -54,7 +54,7 @@ import { getServiceDetail } from '@/data/service-details'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
-  DollarSign,
+  DollarSign: CurrencyTaka,
   FileText,
   GraduationCap,
   ClipboardCheck,

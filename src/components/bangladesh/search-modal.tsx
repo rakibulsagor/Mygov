@@ -12,10 +12,10 @@ import {
   TrendingUp,
   type LucideIcon,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import { searchPortal, type SearchEntry } from '@/data/search-index'
 import {
   Monitor,
-  DollarSign,
   FileText,
   GraduationCap,
   ClipboardCheck,
@@ -45,7 +45,7 @@ import {
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
-  DollarSign,
+  DollarSign: CurrencyTaka,
   FileText,
   GraduationCap,
   ClipboardCheck,

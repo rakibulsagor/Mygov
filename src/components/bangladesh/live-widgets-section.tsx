@@ -9,13 +9,13 @@ import {
   Cloud,
   TrendingUp,
   TrendingDown,
-  DollarSign,
   Clock,
   Calendar,
   Wind,
   Droplets,
   Eye,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 
 // Weather data for major cities
 const weatherData = [
@@ -219,7 +219,7 @@ export function LiveWidgetsSection() {
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                  <DollarSign className="h-4 w-4 text-white" />
+                  <CurrencyTaka className="h-4 w-4 text-white" />
                 </div>
                 <h3 className="font-bengali font-bold">বৈদেশিক মুদ্রার হার</h3>
               </div>

@@ -12,7 +12,6 @@ import {
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
 import {
   Monitor,
-  DollarSign,
   FileText,
   GraduationCap,
   ClipboardCheck,
@@ -49,10 +48,11 @@ import {
   Users,
   Navigation,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
-  DollarSign,
+  DollarSign: CurrencyTaka,
   FileText,
   GraduationCap,
   ClipboardCheck,

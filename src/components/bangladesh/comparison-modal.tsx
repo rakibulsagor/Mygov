@@ -6,7 +6,6 @@ import {
   X,
   GitCompare,
   Clock,
-  DollarSign,
   Globe,
   Phone,
   CheckCircle2,
@@ -14,6 +13,7 @@ import {
   UserCheck,
   Trash2,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import type { ServiceDetail } from '@/data/service-details'
 import { useComparison } from '@/hooks/use-comparison'
 
@@ -127,7 +127,7 @@ export function ComparisonModal({ open, services, onClose }: ComparisonModalProp
                   </CompareRow>
 
                   {/* Fee */}
-                  <CompareRow icon={DollarSign} label="ফি">
+                  <CompareRow icon={CurrencyTaka} label="ফি">
                     {services.map((svc) => (
                       <td key={svc.id} className="p-3 border-l border-border">
                         <span className="font-bengali text-sm font-medium text-green-600 dark:text-green-400">{svc.fee}</span>

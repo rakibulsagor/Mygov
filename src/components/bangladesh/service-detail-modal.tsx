@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   FileText,
   Clock,
-  DollarSign,
   Globe,
   Phone,
   ListChecks,
@@ -14,6 +13,7 @@ import {
   ExternalLink,
   Share2,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import type { ServiceDetail } from '@/data/service-details'
 import { StarRating } from '@/components/bangladesh/star-rating'
 import { ShareButton } from '@/components/bangladesh/share-button'
@@ -127,7 +127,7 @@ export function ServiceDetailModal({ service, onClose }: ServiceDetailModalProps
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50">
-                  <DollarSign className="h-5 w-5 text-primary flex-shrink-0" />
+                  <CurrencyTaka className="h-5 w-5 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <div className="text-[10px] text-muted-foreground font-bengali">ফি</div>
                     <div className="font-bengali text-xs font-semibold truncate">{service.fee}</div>

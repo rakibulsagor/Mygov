@@ -6,13 +6,13 @@ import {
   Megaphone,
   Wallet,
   TrendingUp,
-  DollarSign,
   CloudSun,
   ShieldCheck,
   Sparkles,
   ArrowUpRight,
   type LucideIcon,
 } from 'lucide-react'
+import { CurrencyTaka } from '@/components/ui/currency-taka'
 import { quickLinks } from '@/data/bangladesh-data'
 import { RecentlyViewedWidget } from '@/components/bangladesh/recently-viewed-widget'
 
@@ -21,7 +21,7 @@ const iconMap: Record<string, LucideIcon> = {
   Megaphone,
   Wallet,
   TrendingUp,
-  DollarSign,
+  DollarSign: CurrencyTaka,
   CloudSun,
   ShieldCheck,
   Sparkles,
